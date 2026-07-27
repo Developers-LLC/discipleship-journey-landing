@@ -8,6 +8,238 @@ import { startLogin, startGoogleLogin } from "@/const";
 import { trpc } from "@/lib/trpc";
 import { useState, useEffect, useRef } from "react";
 import { Link } from "wouter";
+import { toast } from "sonner";
+
+// ─── Product cover/title map (mirrors Orders.tsx) ────────────────────────────
+const PRODUCT_INFO: Record<string, { title: string; subtitle: string; cover: string }> = {
+  belong: {
+    title: "BELONG",
+    subtitle: "Book 1 — You Are Welcomed",
+    cover: "/manus-storage/BELONG_KDP_Cover_8e45f300.jpg",
+  },
+  grow: {
+    title: "GROW",
+    subtitle: "Book 2 — You Are Transformed",
+    cover: "/manus-storage/GROW_KDP_Cover_ea301040.jpg",
+  },
+  go: {
+    title: "GO",
+    subtitle: "Book 3 — You Are Sent",
+    cover: "/manus-storage/GO_KDP_Cover_3681b44e.jpg",
+  },
+};
+
+// ─── Secure inline Download Button ───────────────────────────────────────────
+function ProfileDownloadButton({ productKey }: { productKey: "belong" | "grow" | "go" }) {
+  const [loading, setLoading] = useState(false);
+  const getDownloadUrl = trpc.stripe.getDownloadUrl.useMutation();
+  const label = PRODUCT_INFO[productKey]?.title ?? productKey.toUpperCase();
+
+  const handleDownload = async () => {
+    setLoading(true);
+    try {
+      const { url, filename } = await getDownloadUrl.mutateAsync({ productKey });
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      a.target = "_blank";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      toast.success(`Downloading ${label}…`);
+    } catch (err: any) {
+      toast.error(err?.message ?? "Download failed. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <button
+      onClick={handleDownload}
+      disabled={loading}
+      style={{
+        background: loading ? "rgba(245,158,11,0.6)" : "#f59e0b",
+        color: "#0d1f3c",
+        border: "none",
+        borderRadius: "9999px",
+        padding: "0.5rem 1.25rem",
+        fontFamily: "'Inter', sans-serif",
+        fontWeight: 700,
+        fontSize: "0.82rem",
+        cursor: loading ? "not-allowed" : "pointer",
+        transition: "background 0.18s ease",
+        whiteSpace: "nowrap",
+      }}
+    >
+      {loading ? "Preparing…" : `↓ Download`}
+    </button>
+  );
+}
+
+// ─── My Books Section ─────────────────────────────────────────────────────────
+function MyBooksSection() {
+  const purchasesQuery = trpc.stripe.myPurchases.useQuery();
+
+  const cardStyle: React.CSSProperties = {
+    background: "rgba(255,255,255,0.04)",
+    border: "1px solid rgba(245,158,11,0.15)",
+    borderRadius: "1.5rem",
+    padding: "2rem 2.5rem",
+    marginBottom: "2rem",
+  };
+
+  if (purchasesQuery.isLoading) {
+    return (
+      <div style={cardStyle}>
+        <GoldRule label="My Books" />
+        <p style={{ fontFamily: "'Inter', sans-serif", color: "rgba(255,255,255,0.45)", marginTop: "1rem" }}>Loading…</p>
+      </div>
+    );
+  }
+
+  const purchases = purchasesQuery.data ?? [];
+  const fulfilled = purchases.filter((p) => p.status === "fulfilled");
+
+  const hasBundle = fulfilled.some((p) => p.productKey === "bundle");
+  const ownedKeys = new Set<"belong" | "grow" | "go">();
+  if (hasBundle) {
+    ownedKeys.add("belong");
+    ownedKeys.add("grow");
+    ownedKeys.add("go");
+  } else {
+    for (const p of fulfilled) {
+      if (p.productKey === "belong" || p.productKey === "grow" || p.productKey === "go") {
+        ownedKeys.add(p.productKey);
+      }
+    }
+  }
+
+  if (ownedKeys.size === 0) {
+    return (
+      <div style={cardStyle}>
+        <GoldRule label="My Books" />
+        <div style={{ marginTop: "1.5rem", textAlign: "center", padding: "1.5rem 0" }}>
+          <div style={{ fontSize: "2.5rem", marginBottom: "0.75rem" }}>📖</div>
+          <p style={{ fontFamily: "'Playfair Display', serif", color: "#fff", fontWeight: 600, marginBottom: "0.5rem" }}>
+            No books yet
+          </p>
+          <p style={{ fontFamily: "'Inter', sans-serif", color: "rgba(255,255,255,0.5)", fontSize: "0.88rem", marginBottom: "1.25rem" }}>
+            Start your discipleship journey today.
+          </p>
+          <Link
+            href="/#books"
+            style={{
+              background: "#f59e0b",
+              color: "#0d1f3c",
+              borderRadius: "9999px",
+              padding: "0.65rem 1.5rem",
+              fontFamily: "'Inter', sans-serif",
+              fontWeight: 700,
+              fontSize: "0.9rem",
+              textDecoration: "none",
+              display: "inline-block",
+            }}
+          >
+            Browse the Series →
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  const orderedKeys: Array<"belong" | "grow" | "go"> = ["belong", "grow", "go"];
+
+  return (
+    <div style={cardStyle}>
+      <GoldRule label="My Books" />
+      {hasBundle && (
+        <div
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "0.4rem",
+            marginTop: "0.75rem",
+            background: "rgba(245,158,11,0.12)",
+            border: "1px solid rgba(245,158,11,0.3)",
+            borderRadius: "9999px",
+            padding: "0.3rem 0.9rem",
+            fontFamily: "'Inter', sans-serif",
+            fontSize: "0.75rem",
+            fontWeight: 700,
+            color: "#f59e0b",
+            letterSpacing: "0.05em",
+          }}
+        >
+          ❖ Complete Bundle Owner
+        </div>
+      )}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))",
+          gap: "1rem",
+          marginTop: "1.5rem",
+        }}
+      >
+        {orderedKeys.filter((k) => ownedKeys.has(k)).map((key) => {
+          const info = PRODUCT_INFO[key];
+          return (
+            <div
+              key={key}
+              style={{
+                background: "rgba(255,255,255,0.04)",
+                border: "1px solid rgba(255,255,255,0.08)",
+                borderRadius: "1rem",
+                overflow: "hidden",
+                display: "flex",
+                flexDirection: "column",
+              }}
+            >
+              <div style={{ background: "#0d1f3c", padding: "0.75rem 0.75rem 0" }}>
+                <div
+                  style={{
+                    borderRadius: "0.5rem",
+                    overflow: "hidden",
+                    aspectRatio: "1 / 1.5",
+                    boxShadow: "0 4px 16px rgba(0,0,0,0.4)",
+                  }}
+                >
+                  <img
+                    src={info.cover}
+                    alt={info.title}
+                    style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top", display: "block" }}
+                  />
+                </div>
+              </div>
+              <div style={{ padding: "0.85rem 0.85rem 1rem", flex: 1, display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                <p style={{ fontFamily: "'Playfair Display', serif", color: "#fff", fontWeight: 700, fontSize: "1.05rem", lineHeight: 1.2 }}>
+                  {info.title}
+                </p>
+                <p style={{ fontFamily: "'Inter', sans-serif", color: "#f59e0b", fontSize: "0.7rem", fontWeight: 600, letterSpacing: "0.04em", textTransform: "uppercase" }}>
+                  {info.subtitle}
+                </p>
+                <div style={{ marginTop: "auto", paddingTop: "0.5rem" }}>
+                  <ProfileDownloadButton productKey={key} />
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <div style={{ marginTop: "1.25rem", textAlign: "right" }}>
+        <Link
+          href="/orders"
+          style={{ fontFamily: "'Inter', sans-serif", color: "rgba(255,255,255,0.45)", fontSize: "0.8rem", textDecoration: "none" }}
+          onMouseEnter={(e) => ((e.currentTarget as HTMLAnchorElement).style.color = "#f59e0b")}
+          onMouseLeave={(e) => ((e.currentTarget as HTMLAnchorElement).style.color = "rgba(255,255,255,0.45)")}
+        >
+          View full purchase history →
+        </Link>
+      </div>
+    </div>
+  );
+}
 
 // ─── 2FA Section ─────────────────────────────────────────────────────────────
 function TwoFactorSection() {
@@ -925,6 +1157,9 @@ export default function Profile() {
 
         {/* 2FA card */}
         <TwoFactorSection />
+
+        {/* My Books card */}
+        <MyBooksSection />
 
         {/* Sign out card */}
         <div

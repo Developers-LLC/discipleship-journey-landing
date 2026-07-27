@@ -43,3 +43,4 @@
 - [x] products.ts updated with real S3 downloadKey and downloadName for each book
 - [x] stripeRouter.getDownloadUrl procedure — server-side ownership check + presigned URL (10-min expiry)
 - [x] Orders page DownloadButton — secure mutation-based download replacing hardcoded placeholder URLs
+- [x] My Books section on Profile page — book covers grid with inline DownloadButton + "View full purchase history" link
