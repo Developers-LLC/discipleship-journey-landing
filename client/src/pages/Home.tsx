@@ -444,7 +444,16 @@ function LeadMagnet() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (email && name) setSubmitted(true);
+    if (email && name) {
+      setSubmitted(true);
+      // Trigger immediate PDF download
+      const link = document.createElement("a");
+      link.href = "/manus-storage/lead_magnet_8063a5de.pdf";
+      link.download = "5-Questions-Every-New-Believer-Is-Afraid-To-Ask.pdf";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
   };
 
   return (
