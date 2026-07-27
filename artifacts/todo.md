@@ -1,0 +1,34 @@
+# Project TODO
+
+- [x] Landing page hero section with KDP book covers
+- [x] Lead magnet opt-in section with PDF download
+- [x] Scripture banner
+- [x] Books section (BELONG, GROW, GO)
+- [x] Reviews and feedback component
+- [x] Launch timeline section
+- [x] For Pastors section with funnel diagram
+- [x] Social media calendar section
+- [x] About section
+- [x] Footer
+- [x] Mobile sticky CTA
+- [x] Mobile hamburger drawer nav
+- [x] Pastor funnel page (/pastor)
+- [x] Upgrade to fullstack (db + server + user)
+- [x] User authentication — sign-in button in nav (logged-out state)
+- [x] User authentication — avatar dropdown with My Profile + Sign Out (logged-in state)
+- [x] Mobile drawer auth — sign-in / my profile / sign-out links
+- [x] Profile page (/profile) — avatar, display name, stats, edit name form, sign out
+- [x] Backend profile.get procedure (returns id, name, email, role, createdAt, lastSignedIn)
+- [x] Backend profile.updateName procedure (updates display name in DB)
+- [x] updateUserName DB helper in server/db.ts
+- [x] Vitest tests for profile procedures
+- [x] Gmail/Google social login — startGoogleLogin() helper in const.ts (provider=google param)
+- [x] Google sign-in button in desktop nav (white pill with Google G logo)
+- [x] Google sign-in button in mobile drawer nav
+- [x] Google sign-in button on Profile page unauthenticated gate
+- [x] Two-factor authentication — TOTP (authenticator app) + SMS (Twilio Verify)
+- [x] 2FA schema: two_factor_auth and pending_two_factor tables
+- [x] 2FA backend: twoFactorRouter with status, setupTotp, confirmTotp, sendSmsCode, confirmSms, disable, verifyChallenge
+- [x] 2FA frontend: TwoFactorSection on Profile page with TOTP QR setup, SMS setup, backup codes, disable flow
+- [x] 2FA challenge page: /2fa-challenge with 6-digit code entry and backup code support
+- [x] OAuth callback intercept: redirects to /2fa-challenge when 2FA is enabled
