@@ -998,6 +998,61 @@ function Footer() {
 }
 
 // ─── Main Page Export ─────────────────────────────────────────────────────────
+// ─── Mobile Sticky CTA ───────────────────────────────────────────────────────
+function MobileStickyCTA() {
+  const [visible, setVisible] = useState(false);
+  const [nearForm, setNearForm] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollY = window.scrollY;
+      // Show after scrolling past the hero (~80px)
+      setVisible(scrollY > 80);
+
+      // Hide when the lead magnet opt-in form (#free-guide) is in viewport
+      const formEl = document.getElementById("free-guide");
+      if (formEl) {
+        const rect = formEl.getBoundingClientRect();
+        setNearForm(rect.top < window.innerHeight && rect.bottom > 0);
+      }
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const show = visible && !nearForm;
+
+  return (
+    <div
+      className="md:hidden fixed bottom-6 left-1/2 z-40"
+      style={{
+        transform: `translateX(-50%) translateY(${show ? "0" : "100px"})`,
+        opacity: show ? 1 : 0,
+        transition: "transform 0.35s cubic-bezier(0.23,1,0.32,1), opacity 0.3s ease",
+        pointerEvents: show ? "auto" : "none",
+      }}
+    >
+      <a
+        href="#free-guide"
+        className="flex items-center gap-2 btn-gold px-6 py-3 rounded-full font-bold text-sm whitespace-nowrap"
+        style={{
+          color: "#0d1f3c",
+          fontFamily: "'Inter', sans-serif",
+          textDecoration: "none",
+          boxShadow: "0 8px 32px rgba(245,158,11,0.45), 0 2px 8px rgba(0,0,0,0.25)",
+        }}
+      >
+        {/* Book icon */}
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0d1f3c" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+        </svg>
+        Get Free Guide ✦
+      </a>
+    </div>
+  );
+}
+
 export default function Home() {
   return (
     <div className="min-h-screen">
@@ -1012,6 +1067,7 @@ export default function Home() {
       <SocialCalendar />
       <AboutSection />
       <Footer />
+      <MobileStickyCTA />
     </div>
   );
 }
