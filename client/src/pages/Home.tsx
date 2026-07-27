@@ -1471,11 +1471,7 @@ function AboutSection() {
         
         {/* Header Badge & Title */}
         <div ref={ref} className={`text-center max-w-3xl mx-auto mb-16 transition-all duration-700 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-4" style={{ background: "rgba(245,158,11,0.12)", border: "1px solid rgba(245,158,11,0.3)" }}>
-            <span style={{ color: "#d97706", fontFamily: "'Inter', sans-serif", fontSize: "0.8rem", fontWeight: 700, letterSpacing: "0.1em" }}>
-              🎁 APPENDIX: ABOUT THE AUTHOR & MINISTRY VISION
-            </span>
-          </div>
+
           <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(2rem, 4vw, 3rem)", fontWeight: 800, color: "#0d1f3c", marginBottom: "1rem" }}>
             ✝️ About the Author & Ministry Vision
           </h2>
