@@ -70,3 +70,29 @@ export const pendingTwoFactor = mysqlTable("pending_two_factor", {
 });
 
 export type PendingTwoFactor = typeof pendingTwoFactor.$inferSelect;
+
+/**
+ * Records a completed purchase. Stripe is the source of truth for payment
+ * details; we only store the identifiers needed to fulfil orders locally.
+ */
+export const purchases = mysqlTable("purchases", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  /** Stripe Checkout Session ID — used to look up full payment details */
+  stripeSessionId: varchar("stripeSessionId", { length: 255 }).notNull().unique(),
+  /** Stripe Payment Intent ID for reference */
+  stripePaymentIntentId: varchar("stripePaymentIntentId", { length: 255 }),
+  /** Product key: 'belong' | 'grow' | 'go' | 'bundle' */
+  productKey: varchar("productKey", { length: 32 }).notNull(),
+  /** Amount paid in cents (cached for display without Stripe API call) */
+  amountCents: int("amountCents").notNull(),
+  /** ISO currency code e.g. 'usd' */
+  currency: varchar("currency", { length: 8 }).notNull().default("usd"),
+  /** fulfilled = download links unlocked */
+  status: mysqlEnum("status", ["pending", "fulfilled", "refunded"]).default("pending").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Purchase = typeof purchases.$inferSelect;
+export type InsertPurchase = typeof purchases.$inferInsert;

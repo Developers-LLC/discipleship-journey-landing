@@ -5,6 +5,7 @@ import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import { updateUserName } from "./db";
 import { twoFactorRouter } from "./twoFactor";
+import { stripeRouter } from "./stripe";
 
 export const appRouter = router({
   // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -34,6 +35,7 @@ export const appRouter = router({
   }),
 
   twoFactor: twoFactorRouter,
+  stripe: stripeRouter,
 });
 
 export type AppRouter = typeof appRouter;

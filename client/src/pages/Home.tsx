@@ -10,6 +10,9 @@ import { Link } from "wouter";
 import ReviewsAndFeedback from "@/components/ReviewsAndFeedback";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { startLogin, startGoogleLogin } from "@/const";
+import { trpc } from "@/lib/trpc";
+import { toast } from "sonner";
+import { useLocation } from "wouter";
 
 // ─── Scroll-triggered fade-up hook ───────────────────────────────────────────
 function useInView(threshold = 0.15) {
@@ -328,6 +331,25 @@ function Nav() {
             >
               My Profile
             </a>
+            <a
+              href="/orders"
+              onClick={handleNavClick}
+              style={{
+                display: "block",
+                background: "rgba(245,158,11,0.07)",
+                border: "1px solid rgba(245,158,11,0.2)",
+                borderRadius: "9999px",
+                padding: "0.75rem",
+                fontFamily: "'Inter', sans-serif",
+                fontSize: "0.88rem",
+                fontWeight: 600,
+                color: "#f59e0b",
+                textDecoration: "none",
+                textAlign: "center",
+              }}
+            >
+              My Books
+            </a>
             <button
               onClick={() => { handleNavClick(); logout(); }}
               style={{
@@ -544,6 +566,26 @@ function Nav() {
                   >
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
                     My Profile
+                  </a>
+                  <a
+                    href="/orders"
+                    onClick={() => setUserMenuOpen(false)}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "0.5rem",
+                      padding: "0.7rem 1rem",
+                      fontFamily: "'Inter', sans-serif",
+                      fontSize: "0.85rem",
+                      color: "rgba(255,255,255,0.8)",
+                      textDecoration: "none",
+                      borderBottom: "1px solid rgba(255,255,255,0.06)",
+                    }}
+                    onMouseEnter={e => (e.currentTarget.style.background = "rgba(245,158,11,0.08)")}
+                    onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                    My Books
                   </a>
                   <button
                     onClick={() => { setUserMenuOpen(false); logout(); }}
@@ -869,7 +911,7 @@ const BOOKS = [
     tag: "LAUNCH PRICE",
     desc: "Discover your identity in Christ, overcome the guilt of your past, and find your place in the family of God. The perfect starting point for every new believer.",
     verse: '"Come to me, all ye that labour and are heavy laden, and I will give you rest." — Matthew 11:28',
-    amazon: "#",
+    productKey: "belong" as const,
   },
   {
     img: "/manus-storage/GROW_KDP_Cover_ea301040.jpg",
@@ -879,7 +921,7 @@ const BOOKS = [
     tag: "AVAILABLE NOW",
     desc: "Deepen your roots in prayer, Scripture, and community. Learn to hear God's voice and bear lasting fruit in every area of your life.",
     verse: '"But grow in grace, and in the knowledge of our Lord and Saviour Jesus Christ." — 2 Peter 3:18',
-    amazon: "#",
+    productKey: "grow" as const,
   },
   {
     img: "/manus-storage/GO_KDP_Cover_3681b44e.jpg",
@@ -889,9 +931,53 @@ const BOOKS = [
     tag: "AVAILABLE NOW",
     desc: "Step into your calling as a witness. Learn to share your faith naturally, make disciples, and become the change your community needs.",
     verse: '"Go ye therefore, and teach all nations..." — Matthew 28:19',
-    amazon: "#",
+    productKey: "go" as const,
   },
 ];
+
+// ─── Buy Button ───────────────────────────────────────────────────────────────
+function BuyButton({ productKey, label = "Buy Now" }: { productKey: "belong" | "grow" | "go" | "bundle"; label?: string }) {
+  const { isAuthenticated } = useAuth();
+  const [, navigate] = useLocation();
+  const { data: ownsData } = trpc.stripe.owns.useQuery({ productKey }, { enabled: isAuthenticated });
+  const checkout = trpc.stripe.createCheckout.useMutation({
+    onSuccess: ({ url }) => {
+      toast.info("Redirecting to checkout…");
+      window.open(url, "_blank");
+    },
+    onError: (err) => toast.error(err.message),
+  });
+
+  if (isAuthenticated && ownsData?.owned) {
+    return (
+      <button
+        onClick={() => navigate("/orders")}
+        className="px-5 py-2 rounded-full text-sm font-bold"
+        style={{ background: "#16a34a", color: "#fff", fontFamily: "'Inter', sans-serif", border: "none", cursor: "pointer" }}
+      >
+        ✓ Download
+      </button>
+    );
+  }
+
+  return (
+    <button
+      onClick={() => {
+        if (!isAuthenticated) {
+          toast.info("Please sign in to purchase");
+          startLogin();
+          return;
+        }
+        checkout.mutate({ productKey });
+      }}
+      disabled={checkout.isPending}
+      className="btn-gold px-5 py-2 rounded-full text-sm font-bold"
+      style={{ color: "#0d1f3c", fontFamily: "'Inter', sans-serif", border: "none", cursor: "pointer", opacity: checkout.isPending ? 0.7 : 1 }}
+    >
+      {checkout.isPending ? "Loading…" : label}
+    </button>
+  );
+}
 
 function BooksSection() {
   const { ref, visible } = useInView();
@@ -972,13 +1058,7 @@ function BooksSection() {
                       </span>
                     )}
                   </div>
-                  <a
-                    href={book.amazon}
-                    className="btn-gold px-5 py-2 rounded-full text-sm font-bold"
-                    style={{ color: "#0d1f3c", fontFamily: "'Inter', sans-serif", textDecoration: "none" }}
-                  >
-                    Get on Amazon
-                  </a>
+                  <BuyButton productKey={book.productKey} label="Buy Now" />
                 </div>
               </div>
             </div>
@@ -1000,13 +1080,7 @@ function BooksSection() {
           <div className="flex items-center justify-center gap-4 flex-wrap">
             <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "2.5rem", fontWeight: 900, color: "#f59e0b" }}>$9.99</span>
             <span style={{ fontFamily: "'Inter', sans-serif", color: "rgba(255,255,255,0.5)", fontSize: "0.9rem" }}>vs. $13.97 separately</span>
-            <a
-              href="#"
-              className="btn-gold px-8 py-3 rounded-full font-bold"
-              style={{ color: "#0d1f3c", fontFamily: "'Inter', sans-serif", textDecoration: "none" }}
-            >
-              Get the Boxset on Amazon ✦
-            </a>
+            <BuyButton productKey="bundle" label="Get the Bundle ✦" />
           </div>
         </div>
       </div>

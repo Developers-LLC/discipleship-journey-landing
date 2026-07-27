@@ -32,3 +32,10 @@
 - [x] 2FA frontend: TwoFactorSection on Profile page with TOTP QR setup, SMS setup, backup codes, disable flow
 - [x] 2FA challenge page: /2fa-challenge with 6-digit code entry and backup code support
 - [x] OAuth callback intercept: redirects to /2fa-challenge when 2FA is enabled
+- [x] Stripe integration — purchases table schema + SQL applied
+- [x] Stripe backend: stripeRouter (createCheckout, myPurchases, owns, products) + handleStripeWebhook
+- [x] Stripe webhook route registered in server/_core/index.ts (before express.json())
+- [x] Orders page (/orders) — My Library with purchase success banner and download links
+- [x] BuyButton component in Home.tsx — Stripe checkout, owned state (✓ Download), login prompt
+- [x] Books section updated — BELONG/GROW/GO/Bundle now use BuyButton instead of Amazon links
+- [x] My Books link added to desktop nav dropdown and mobile drawer (authenticated users)
