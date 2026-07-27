@@ -1480,7 +1480,7 @@ function AboutSection() {
             ✝️ About the Author & Ministry Vision
           </h2>
           <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "1.08rem", color: "#4a5568", lineHeight: 1.8 }}>
-            <strong>Thomas Perdana</strong> (<a href="https://about.me/thomas.perdana" target="_blank" rel="noopener noreferrer" className="text-amber-600 underline font-medium">about.me/thomas.perdana</a>) is a 59-year-old third-generation Chinese-Indonesian believer who surrendered his life to Jesus Christ at age 12. Walking with the Lord for over 47 years, his heart's passion is to disciple believers, equip Kingdom leaders, and anchor new Christians in the unshakeable truth of God's Word.
+            <strong>Thomas Perdana</strong> (<a href="https://about.me/thomas.perdana" target="_blank" rel="noopener noreferrer" className="text-amber-600 underline font-medium">about.me/thomas.perdana</a>) is a 59-year-old third-generation Chinese-American believer who surrendered his life to Jesus Christ at age 12. Walking with the Lord for over 47 years, his heart's passion is to disciple believers, equip Kingdom leaders, and anchor new Christians in the unshakeable truth of God's Word.
           </p>
         </div>
 
