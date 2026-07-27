@@ -5,22 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1785181637379,
-      "tag": "0000_condemned_zaladane",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "5",
-      "when": 1785173884832,
-      "tag": "0001_panoramic_dakota_north",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "5",
-      "when": 1785175619914,
-      "tag": "0002_striped_sandman",
+      "when": 1785190344577,
+      "tag": "0000_nebulous_thena",
       "breakpoints": true
     }
   ]

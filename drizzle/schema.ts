@@ -2,6 +2,8 @@ import { boolean, integer, pgEnum, pgTable, serial, text, timestamp, varchar } f
 
 export const roleEnum = pgEnum("role", ["user", "admin"]);
 export const twoFactorMethodEnum = pgEnum("two_factor_method", ["totp", "sms"]);
+export const purchaseStatusEnum = pgEnum("purchase_status", ["pending", "fulfilled", "refunded"]);
+export const giftStatusEnum = pgEnum("gift_status", ["pending", "redeemed"]);
 
 /**
  * Core user table backing auth flow.
@@ -76,9 +78,9 @@ export type PendingTwoFactor = typeof pendingTwoFactor.$inferSelect;
  * Records a completed purchase. Stripe is the source of truth for payment
  * details; we only store the identifiers needed to fulfil orders locally.
  */
-export const purchases = mysqlTable("purchases", {
-  id: int("id").autoincrement().primaryKey(),
-  userId: int("userId").notNull(),
+export const purchases = pgTable("purchases", {
+  id: serial("id").primaryKey(),
+  userId: integer("userId").notNull(),
   /** Stripe Checkout Session ID — used to look up full payment details */
   stripeSessionId: varchar("stripeSessionId", { length: 255 }).notNull().unique(),
   /** Stripe Payment Intent ID for reference */
@@ -86,13 +88,13 @@ export const purchases = mysqlTable("purchases", {
   /** Product key: 'belong' | 'grow' | 'go' | 'bundle' */
   productKey: varchar("productKey", { length: 32 }).notNull(),
   /** Amount paid in cents (cached for display without Stripe API call) */
-  amountCents: int("amountCents").notNull(),
+  amountCents: integer("amountCents").notNull(),
   /** ISO currency code e.g. 'usd' */
-  currency: varchar("currency", { length: 8 }).notNull().default("usd"),
+  currency: varchar("currency", { length: 8 }).default("usd").notNull(),
   /** fulfilled = download links unlocked */
-  status: mysqlEnum("status", ["pending", "fulfilled", "refunded"]).default("pending").notNull(),
+  status: purchaseStatusEnum("status").default("pending").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().notNull(),
 });
 
 export type Purchase = typeof purchases.$inferSelect;
@@ -102,12 +104,12 @@ export type InsertPurchase = typeof purchases.$inferInsert;
  * Gift tokens — created when a buyer purchases a book as a gift.
  * The recipient redeems the token at /gift/:token to claim the book.
  */
-export const gifts = mysqlTable("gifts", {
-  id: int("id").autoincrement().primaryKey(),
+export const gifts = pgTable("gifts", {
+  id: serial("id").primaryKey(),
   /** Opaque URL-safe token sent to the recipient */
   token: varchar("token", { length: 128 }).notNull().unique(),
   /** Buyer's user ID */
-  senderUserId: int("senderUserId").notNull(),
+  senderUserId: integer("senderUserId").notNull(),
   /** Recipient email address (entered by buyer at checkout) */
   recipientEmail: varchar("recipientEmail", { length: 320 }).notNull(),
   /** Recipient display name (entered by buyer) */
@@ -119,15 +121,15 @@ export const gifts = mysqlTable("gifts", {
   /** Stripe Checkout Session ID that funded this gift */
   stripeSessionId: varchar("stripeSessionId", { length: 255 }).notNull().unique(),
   /** Amount paid in cents */
-  amountCents: int("amountCents").notNull(),
-  currency: varchar("currency", { length: 8 }).notNull().default("usd"),
+  amountCents: integer("amountCents").notNull(),
+  currency: varchar("currency", { length: 8 }).default("usd").notNull(),
   /** pending = not yet redeemed, redeemed = claimed by recipient */
-  status: mysqlEnum("status", ["pending", "redeemed"]).default("pending").notNull(),
+  status: giftStatusEnum("status").default("pending").notNull(),
   /** User ID of the person who redeemed the gift (null until redeemed) */
-  redeemedByUserId: int("redeemedByUserId"),
+  redeemedByUserId: integer("redeemedByUserId"),
   redeemedAt: timestamp("redeemedAt"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().notNull(),
 });
 
 export type Gift = typeof gifts.$inferSelect;
