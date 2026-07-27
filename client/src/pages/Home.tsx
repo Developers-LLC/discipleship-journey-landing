@@ -8,6 +8,8 @@ import { useState, useEffect, useRef } from "react";
 import React from "react";
 import { Link } from "wouter";
 import ReviewsAndFeedback from "@/components/ReviewsAndFeedback";
+import { useAuth } from "@/_core/hooks/useAuth";
+import { startLogin } from "@/const";
 
 // ─── Scroll-triggered fade-up hook ───────────────────────────────────────────
 function useInView(threshold = 0.15) {
@@ -124,6 +126,8 @@ function SocialIcon({ type }: { type: string }) {
 function Nav() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const { user, isAuthenticated, loading, logout } = useAuth();
 
   // Close menu on route/hash navigation
   const handleNavClick = () => setMenuOpen(false);
@@ -139,6 +143,21 @@ function Nav() {
     document.body.style.overflow = menuOpen ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
   }, [menuOpen]);
+
+  // Close user dropdown on outside click
+  useEffect(() => {
+    if (!userMenuOpen) return;
+    const handler = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (!target.closest("[data-user-menu]")) setUserMenuOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [userMenuOpen]);
+
+  const avatarInitials = user?.name
+    ? user.name.split(" ").map((w: string) => w[0]).join("").slice(0, 2).toUpperCase()
+    : "?";
 
   return (
     <>
@@ -228,9 +247,75 @@ function Nav() {
         >
           Yes — Download the Free Guide ✦
         </a>
-        <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.75rem", textAlign: "center", marginTop: "0.75rem", fontFamily: "'Inter', sans-serif" }}>
-          Free. No spam. Unsubscribe anytime.
-        </p>
+        {!loading && !isAuthenticated && (
+          <>
+            <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.75rem", textAlign: "center", marginTop: "0.75rem", fontFamily: "'Inter', sans-serif" }}>
+              Free. No spam. Unsubscribe anytime.
+            </p>
+            <button
+              onClick={() => { handleNavClick(); startLogin(); }}
+              style={{
+                display: "block",
+                width: "100%",
+                marginTop: "0.75rem",
+                background: "transparent",
+                border: "1.5px solid rgba(255,255,255,0.25)",
+                borderRadius: "9999px",
+                padding: "0.85rem",
+                fontFamily: "'Inter', sans-serif",
+                fontSize: "0.88rem",
+                fontWeight: 600,
+                color: "rgba(255,255,255,0.75)",
+                cursor: "pointer",
+                textAlign: "center",
+              }}
+            >
+              Sign In
+            </button>
+          </>
+        )}
+        {!loading && isAuthenticated && (
+          <div style={{ marginTop: "0.75rem", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+            <a
+              href="/profile"
+              onClick={handleNavClick}
+              style={{
+                display: "block",
+                background: "rgba(245,158,11,0.1)",
+                border: "1px solid rgba(245,158,11,0.25)",
+                borderRadius: "9999px",
+                padding: "0.75rem",
+                fontFamily: "'Inter', sans-serif",
+                fontSize: "0.88rem",
+                fontWeight: 600,
+                color: "#f59e0b",
+                textDecoration: "none",
+                textAlign: "center",
+              }}
+            >
+              My Profile
+            </a>
+            <button
+              onClick={() => { handleNavClick(); logout(); }}
+              style={{
+                display: "block",
+                width: "100%",
+                background: "transparent",
+                border: "1px solid rgba(255,255,255,0.15)",
+                borderRadius: "9999px",
+                padding: "0.75rem",
+                fontFamily: "'Inter', sans-serif",
+                fontSize: "0.88rem",
+                fontWeight: 600,
+                color: "rgba(255,255,255,0.55)",
+                cursor: "pointer",
+                textAlign: "center",
+              }}
+            >
+              Sign Out
+            </button>
+          </div>
+        )}
       </div>
     </div>
 
@@ -282,13 +367,143 @@ function Nav() {
           >
             Reviews
           </a>
-          <a
-            href="#free-guide"
-            className="btn-gold px-5 py-2 rounded-full text-sm font-bold"
-            style={{ color: "#0d1f3c", fontFamily: "'Inter', sans-serif", textDecoration: "none" }}
-          >
-            Download Free Guide
-          </a>
+          {!loading && !isAuthenticated && (
+            <>
+              <a
+                href="#free-guide"
+                className="btn-gold px-5 py-2 rounded-full text-sm font-bold"
+                style={{ color: "#0d1f3c", fontFamily: "'Inter', sans-serif", textDecoration: "none" }}
+              >
+                Download Free Guide
+              </a>
+              <button
+                onClick={() => startLogin()}
+                className="text-sm font-medium transition-colors duration-200"
+                style={{
+                  color: "rgba(255,255,255,0.8)",
+                  fontFamily: "'Inter', sans-serif",
+                  background: "none",
+                  border: "1.5px solid rgba(255,255,255,0.3)",
+                  borderRadius: "9999px",
+                  padding: "0.4rem 1.1rem",
+                  cursor: "pointer",
+                }}
+                onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = "#f59e0b"; (e.currentTarget as HTMLButtonElement).style.color = "#f59e0b"; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(255,255,255,0.3)"; (e.currentTarget as HTMLButtonElement).style.color = "rgba(255,255,255,0.8)"; }}
+              >
+                Sign In
+              </button>
+            </>
+          )}
+          {!loading && isAuthenticated && (
+            <div data-user-menu style={{ position: "relative" }}>
+              <button
+                onClick={() => setUserMenuOpen(v => !v)}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.5rem",
+                  background: "rgba(245,158,11,0.12)",
+                  border: "1.5px solid rgba(245,158,11,0.35)",
+                  borderRadius: "9999px",
+                  padding: "0.35rem 0.75rem 0.35rem 0.4rem",
+                  cursor: "pointer",
+                }}
+              >
+                <div
+                  style={{
+                    width: 28,
+                    height: 28,
+                    borderRadius: "50%",
+                    background: "linear-gradient(135deg, #0d1f3c 0%, #1a3a6b 100%)",
+                    border: "1.5px solid #f59e0b",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontFamily: "'Inter', sans-serif",
+                    fontWeight: 700,
+                    fontSize: "0.65rem",
+                    color: "#f59e0b",
+                    flexShrink: 0,
+                  }}
+                >
+                  {avatarInitials}
+                </div>
+                <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.82rem", color: "#f59e0b", fontWeight: 600, maxWidth: 100, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  {user?.name ?? "Account"}
+                </span>
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" style={{ color: "#f59e0b", transform: userMenuOpen ? "rotate(180deg)" : "none", transition: "transform 0.2s" }}>
+                  <path d="M2 4l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </button>
+
+              {userMenuOpen && (
+                <div
+                  style={{
+                    position: "absolute",
+                    top: "calc(100% + 8px)",
+                    right: 0,
+                    background: "#0d1f3c",
+                    border: "1px solid rgba(245,158,11,0.25)",
+                    borderRadius: "0.75rem",
+                    boxShadow: "0 8px 32px rgba(0,0,0,0.4)",
+                    minWidth: 180,
+                    overflow: "hidden",
+                    zIndex: 100,
+                    animation: "dropIn 0.18s cubic-bezier(0.23,1,0.32,1)",
+                  }}
+                >
+                  <style>{`@keyframes dropIn { from { opacity:0; transform:scale(0.95) translateY(-4px); } to { opacity:1; transform:scale(1) translateY(0); } }`}</style>
+                  <div style={{ padding: "0.75rem 1rem", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
+                    <p style={{ fontFamily: "'Playfair Display', serif", color: "#fff", fontWeight: 600, fontSize: "0.9rem", margin: 0 }}>{user?.name ?? "Account"}</p>
+                    {user?.email && <p style={{ fontFamily: "'Inter', sans-serif", color: "rgba(255,255,255,0.45)", fontSize: "0.75rem", margin: "0.15rem 0 0" }}>{user.email}</p>}
+                  </div>
+                  <a
+                    href="/profile"
+                    onClick={() => setUserMenuOpen(false)}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "0.5rem",
+                      padding: "0.7rem 1rem",
+                      fontFamily: "'Inter', sans-serif",
+                      fontSize: "0.85rem",
+                      color: "rgba(255,255,255,0.8)",
+                      textDecoration: "none",
+                      borderBottom: "1px solid rgba(255,255,255,0.06)",
+                    }}
+                    onMouseEnter={e => (e.currentTarget.style.background = "rgba(245,158,11,0.08)")}
+                    onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+                    My Profile
+                  </a>
+                  <button
+                    onClick={() => { setUserMenuOpen(false); logout(); }}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "0.5rem",
+                      width: "100%",
+                      padding: "0.7rem 1rem",
+                      fontFamily: "'Inter', sans-serif",
+                      fontSize: "0.85rem",
+                      color: "rgba(255,255,255,0.6)",
+                      background: "none",
+                      border: "none",
+                      cursor: "pointer",
+                      textAlign: "left",
+                    }}
+                    onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(248,113,113,0.08)"; (e.currentTarget as HTMLButtonElement).style.color = "#f87171"; }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = "transparent"; (e.currentTarget as HTMLButtonElement).style.color = "rgba(255,255,255,0.6)"; }}
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                    Sign Out
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* ── Hamburger button (mobile only) ── */}
