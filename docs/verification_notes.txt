@@ -1,0 +1,8 @@
+BELONG.pdf preview findings (pages 1-4):
+- Cover page renders correctly with navy background, gold typography, and KDP cover art.
+- Copyright page renders cleanly.
+- Page 3 still contains unwanted front-matter remnants from source markdown, including:
+  - "Series / Level / Focus / Bible Translation" metadata text.
+  - "KDP DASHBOARD PUBLISHING METADATA" heading.
+- Table of contents otherwise renders acceptably.
+- Chapter opening design on page 4 renders well.
