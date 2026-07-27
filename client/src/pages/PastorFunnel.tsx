@@ -90,7 +90,7 @@ export default function PastorFunnel() {
                   { icon: "📖", title: "BELONG — Book 1", desc: "Digital ebook: Identity, community, and your first steps of faith." },
                   { icon: "🌱", title: "GROW — Book 2", desc: "Digital ebook: Prayer, Scripture, and spiritual transformation." },
                   { icon: "🚀", title: "GO — Book 3", desc: "Digital ebook: Mission, witness, and making disciples." },
-                  { icon: "📋", title: "Small Group Discussion Guides", desc: "PDF guides for CLASS 101/201/301/401 tracks — ready to print and use." },
+                  { icon: "📋", title: "Small Group Discussion Guides", desc: "PDF guides for all 3 books — ready to print and use." },
                   { icon: "🎙️", title: "Curriculum Preview Call", desc: "Optional 15-minute call to explore church licensing and bulk orders." },
                 ].map(({ icon, title, desc }) => (
                   <div

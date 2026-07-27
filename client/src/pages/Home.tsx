@@ -1342,7 +1342,7 @@ function ForPastors() {
             <div className="space-y-4 mb-8">
               {[
                 { icon: "📚", text: "Free digital review copies of Books 1, 2, and 3" },
-                { icon: "📋", text: "Small group discussion guide PDFs for CLASS 101/201/301/401" },
+                { icon: "📋", text: "Small group discussion guide PDFs for all 3 books" },
                 { icon: "⛪", text: "$99/year flat-rate site license for unlimited member distribution" },
                 { icon: "📦", text: "Bulk paperback orders available for church classes" },
               ].map(({ icon, text }) => (
@@ -1630,7 +1630,7 @@ function AboutSection() {
             <div className="text-center p-5 rounded-2xl bg-amber-50/50 border border-amber-200/60">
               <span className="inline-block px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-900 mb-2">Book 1</span>
               <h4 style={{ fontFamily: "'Playfair Display', serif", color: "#0d1f3c", fontWeight: 700, fontSize: "1.2rem" }}>BELONG</h4>
-              <p className="text-xs text-slate-500 mb-3">Identity & Community (CLASS 101)</p>
+              <p className="text-xs text-slate-500 mb-3">Identity & Community</p>
               <img src="/qrcode_book1.png" alt="Book 1 QR Code" className="w-36 h-36 mx-auto my-3 rounded-lg border p-1 bg-white" />
               <a
                 href="https://bible.thomasperdana.com/#belong"
@@ -1647,7 +1647,7 @@ function AboutSection() {
             <div className="text-center p-5 rounded-2xl bg-amber-50/50 border border-amber-200/60">
               <span className="inline-block px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-900 mb-2">Book 2</span>
               <h4 style={{ fontFamily: "'Playfair Display', serif", color: "#0d1f3c", fontWeight: 700, fontSize: "1.2rem" }}>GROW</h4>
-              <p className="text-xs text-slate-500 mb-3">Disciplines & Growth (CLASS 201+301)</p>
+              <p className="text-xs text-slate-500 mb-3">Disciplines & Growth</p>
               <img src="/qrcode_book2.png" alt="Book 2 QR Code" className="w-36 h-36 mx-auto my-3 rounded-lg border p-1 bg-white" />
               <a
                 href="https://bible.thomasperdana.com/#grow"
@@ -1664,7 +1664,7 @@ function AboutSection() {
             <div className="text-center p-5 rounded-2xl bg-amber-50/50 border border-amber-200/60">
               <span className="inline-block px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-900 mb-2">Book 3</span>
               <h4 style={{ fontFamily: "'Playfair Display', serif", color: "#0d1f3c", fontWeight: 700, fontSize: "1.2rem" }}>GO</h4>
-              <p className="text-xs text-slate-500 mb-3">Mission & Witness (CLASS 401)</p>
+              <p className="text-xs text-slate-500 mb-3">Mission & Witness</p>
               <img src="/qrcode_book3.png" alt="Book 3 QR Code" className="w-36 h-36 mx-auto my-3 rounded-lg border p-1 bg-white" />
               <a
                 href="https://bible.thomasperdana.com/#go"
