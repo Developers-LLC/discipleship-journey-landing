@@ -1,8 +1,10 @@
-import { useEffect, useState } from "react";
-import { Link, useLocation } from "wouter";
+import { useState } from "react";
+import { Link } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { startLogin } from "@/const";
 import { useAuth } from "@/_core/hooks/useAuth";
+import { toast } from "sonner";
+
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 function formatCents(cents: number, currency = "usd") {
   return new Intl.NumberFormat("en-US", {
@@ -12,14 +14,12 @@ function formatCents(cents: number, currency = "usd") {
 }
 
 function formatDate(d: Date | string) {
-  return new Date(d).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+  return new Date(d).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
 }
-
-const BOOK_DOWNLOAD_URLS: Record<string, string> = {
-  belong: "/manus-storage/BELONG_KDP_Cover_8e45f300.jpg", // placeholder — replace with real PDF S3 URL
-  grow: "/manus-storage/GROW_KDP_Cover_ea301040.jpg",
-  go: "/manus-storage/GO_KDP_Cover_3681b44e.jpg",
-};
 
 const PRODUCT_INFO: Record<string, { title: string; subtitle: string; cover: string }> = {
   belong: {
@@ -44,8 +44,58 @@ const PRODUCT_INFO: Record<string, { title: string; subtitle: string; cover: str
   },
 };
 
+// ─── Secure Download Button ───────────────────────────────────────────────────
+function DownloadButton({ productKey }: { productKey: "belong" | "grow" | "go" }) {
+  const [loading, setLoading] = useState(false);
+  const getDownloadUrl = trpc.stripe.getDownloadUrl.useMutation();
+  const label = PRODUCT_INFO[productKey]?.title ?? productKey.toUpperCase();
+
+  const handleDownload = async () => {
+    setLoading(true);
+    try {
+      const { url, filename } = await getDownloadUrl.mutateAsync({ productKey });
+      // Trigger browser download using a temporary anchor
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      a.target = "_blank";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      toast.success(`Downloading ${label}…`);
+    } catch (err: any) {
+      toast.error(err?.message ?? "Download failed. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <button
+      onClick={handleDownload}
+      disabled={loading}
+      className="px-5 py-2 rounded-full text-sm font-bold transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
+      style={{
+        background: "#f59e0b",
+        color: "#0d1f3c",
+        fontFamily: "'Inter', sans-serif",
+        border: "none",
+        cursor: loading ? "not-allowed" : "pointer",
+      }}
+      onMouseEnter={e => {
+        if (!loading) (e.currentTarget as HTMLElement).style.background = "#d97706";
+      }}
+      onMouseLeave={e => {
+        if (!loading) (e.currentTarget as HTMLElement).style.background = "#f59e0b";
+      }}
+    >
+      {loading ? "Preparing…" : `↓ Download ${label}`}
+    </button>
+  );
+}
+
 // ─── Success Banner ───────────────────────────────────────────────────────────
-function SuccessBanner({ sessionId }: { sessionId: string }) {
+function SuccessBanner() {
   return (
     <div
       className="rounded-2xl p-8 mb-10 text-center"
@@ -63,7 +113,13 @@ function SuccessBanner({ sessionId }: { sessionId: string }) {
       >
         Purchase Complete — Welcome to the Journey!
       </h2>
-      <p style={{ fontFamily: "'Inter', sans-serif", color: "rgba(255,255,255,0.75)", fontSize: "0.95rem" }}>
+      <p
+        style={{
+          fontFamily: "'Inter', sans-serif",
+          color: "rgba(255,255,255,0.75)",
+          fontSize: "0.95rem",
+        }}
+      >
         Your book is ready to download below. A receipt has been sent to your email.
       </p>
     </div>
@@ -88,8 +144,9 @@ function PurchaseCard({
     cover: "/manus-storage/hero_banner_kdp_v2_1159854e.jpg",
   };
 
-  // For bundle, show all three books
-  const downloadKeys = productKey === "bundle" ? ["belong", "grow", "go"] : [productKey];
+  // Bundle unlocks all three individual books
+  const downloadKeys: Array<"belong" | "grow" | "go"> =
+    productKey === "bundle" ? ["belong", "grow", "go"] : [productKey as "belong" | "grow" | "go"];
 
   return (
     <div
@@ -135,7 +192,13 @@ function PurchaseCard({
           >
             {info.title}
           </h3>
-          <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.85rem", color: "rgba(255,255,255,0.55)" }}>
+          <p
+            style={{
+              fontFamily: "'Inter', sans-serif",
+              fontSize: "0.85rem",
+              color: "rgba(255,255,255,0.55)",
+            }}
+          >
             {info.subtitle}
           </p>
         </div>
@@ -154,22 +217,7 @@ function PurchaseCard({
 
           <div className="flex gap-2 flex-wrap">
             {downloadKeys.map(key => (
-              <a
-                key={key}
-                href={BOOK_DOWNLOAD_URLS[key] ?? "#"}
-                download
-                className="px-5 py-2 rounded-full text-sm font-bold transition-all duration-200"
-                style={{
-                  background: "#f59e0b",
-                  color: "#0d1f3c",
-                  fontFamily: "'Inter', sans-serif",
-                  textDecoration: "none",
-                }}
-                onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = "#d97706")}
-                onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = "#f59e0b")}
-              >
-                ↓ Download {PRODUCT_INFO[key]?.title ?? key.toUpperCase()}
-              </a>
+              <DownloadButton key={key} productKey={key} />
             ))}
           </div>
         </div>
@@ -181,7 +229,6 @@ function PurchaseCard({
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function Orders() {
   const { isAuthenticated, loading: authLoading } = useAuth();
-  const [location] = useLocation();
   const sessionId = new URLSearchParams(window.location.search).get("session_id");
 
   const { data: purchases, isLoading } = trpc.stripe.myPurchases.useQuery(undefined, {
@@ -190,15 +237,23 @@ export default function Orders() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: "#0d1f3c" }}>
-        <div style={{ color: "rgba(255,255,255,0.5)", fontFamily: "'Inter', sans-serif" }}>Loading…</div>
+      <div
+        className="min-h-screen flex items-center justify-center"
+        style={{ background: "#0d1f3c" }}
+      >
+        <div style={{ color: "rgba(255,255,255,0.5)", fontFamily: "'Inter', sans-serif" }}>
+          Loading…
+        </div>
       </div>
     );
   }
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: "#0d1f3c" }}>
+      <div
+        className="min-h-screen flex items-center justify-center"
+        style={{ background: "#0d1f3c" }}
+      >
         <div className="text-center max-w-md px-6">
           <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>📚</div>
           <h2
@@ -212,13 +267,25 @@ export default function Orders() {
           >
             Sign In to View Your Books
           </h2>
-          <p style={{ fontFamily: "'Inter', sans-serif", color: "rgba(255,255,255,0.6)", marginBottom: "2rem" }}>
+          <p
+            style={{
+              fontFamily: "'Inter', sans-serif",
+              color: "rgba(255,255,255,0.6)",
+              marginBottom: "2rem",
+            }}
+          >
             Sign in to access your purchased books and download them anytime.
           </p>
           <button
             onClick={() => startLogin()}
             className="px-8 py-3 rounded-full font-bold text-sm"
-            style={{ background: "#f59e0b", color: "#0d1f3c", fontFamily: "'Inter', sans-serif", border: "none", cursor: "pointer" }}
+            style={{
+              background: "#f59e0b",
+              color: "#0d1f3c",
+              fontFamily: "'Inter', sans-serif",
+              border: "none",
+              cursor: "pointer",
+            }}
           >
             Sign In to Continue
           </button>
@@ -243,12 +310,40 @@ export default function Orders() {
             <div className="flex items-center gap-3">
               <svg width="36" height="36" viewBox="0 0 40 40" fill="none">
                 <rect width="40" height="40" rx="8" fill="#f59e0b" fillOpacity="0.12" />
-                <path d="M8 28V14c0-1.1.9-2 2-2h8c1.1 0 2 .9 2 2v14" stroke="#f59e0b" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                <path d="M20 28V14c0-1.1.9-2 2-2h8c1.1 0 2 .9 2 2v14" stroke="#f59e0b" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                <path d="M8 28h24" stroke="#f59e0b" strokeWidth="1.5" strokeLinecap="round" />
-                <path d="M20 4v8M17 7h6" stroke="#f59e0b" strokeWidth="1.8" strokeLinecap="round" />
+                <path
+                  d="M8 28V14c0-1.1.9-2 2-2h8c1.1 0 2 .9 2 2v14"
+                  stroke="#f59e0b"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M20 28V14c0-1.1.9-2 2-2h8c1.1 0 2 .9 2 2v14"
+                  stroke="#f59e0b"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M8 28h24"
+                  stroke="#f59e0b"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                />
+                <path
+                  d="M20 4v8M17 7h6"
+                  stroke="#f59e0b"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                />
               </svg>
-              <span style={{ fontFamily: "'Playfair Display', serif", color: "#fff", fontWeight: 700 }}>
+              <span
+                style={{
+                  fontFamily: "'Playfair Display', serif",
+                  color: "#fff",
+                  fontWeight: 700,
+                }}
+              >
                 The Discipleship Journey
               </span>
             </div>
@@ -266,7 +361,7 @@ export default function Orders() {
 
       <div className="container py-16 max-w-3xl mx-auto">
         {/* Success banner */}
-        {sessionId && <SuccessBanner sessionId={sessionId} />}
+        {sessionId && <SuccessBanner />}
 
         {/* Header */}
         <div className="mb-10">
@@ -293,17 +388,37 @@ export default function Orders() {
           >
             Your Purchased Books
           </h1>
+          <p
+            style={{
+              fontFamily: "'Inter', sans-serif",
+              color: "rgba(255,255,255,0.5)",
+              fontSize: "0.9rem",
+              marginTop: "0.5rem",
+            }}
+          >
+            Click "Download" to get a fresh, secure link — valid for 10 minutes.
+          </p>
         </div>
 
         {/* Purchase list */}
         {isLoading ? (
-          <div style={{ color: "rgba(255,255,255,0.5)", fontFamily: "'Inter', sans-serif", textAlign: "center", padding: "3rem 0" }}>
+          <div
+            style={{
+              color: "rgba(255,255,255,0.5)",
+              fontFamily: "'Inter', sans-serif",
+              textAlign: "center",
+              padding: "3rem 0",
+            }}
+          >
             Loading your library…
           </div>
         ) : !purchases || purchases.length === 0 ? (
           <div
             className="rounded-2xl p-12 text-center"
-            style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)" }}
+            style={{
+              background: "rgba(255,255,255,0.03)",
+              border: "1px solid rgba(255,255,255,0.08)",
+            }}
           >
             <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>📖</div>
             <h3
@@ -317,13 +432,23 @@ export default function Orders() {
             >
               No purchases yet
             </h3>
-            <p style={{ fontFamily: "'Inter', sans-serif", color: "rgba(255,255,255,0.5)", marginBottom: "2rem" }}>
+            <p
+              style={{
+                fontFamily: "'Inter', sans-serif",
+                color: "rgba(255,255,255,0.5)",
+                marginBottom: "2rem",
+              }}
+            >
               Start your discipleship journey today.
             </p>
             <Link href="/#books" style={{ textDecoration: "none" }}>
               <span
                 className="inline-block px-8 py-3 rounded-full font-bold text-sm"
-                style={{ background: "#f59e0b", color: "#0d1f3c", fontFamily: "'Inter', sans-serif" }}
+                style={{
+                  background: "#f59e0b",
+                  color: "#0d1f3c",
+                  fontFamily: "'Inter', sans-serif",
+                }}
               >
                 Browse the Series →
               </span>
@@ -333,7 +458,10 @@ export default function Orders() {
           <div className="space-y-4">
             {purchases
               .filter(p => p.status === "fulfilled")
-              .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+              .sort(
+                (a, b) =>
+                  new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+              )
               .map(p => (
                 <PurchaseCard
                   key={p.id}

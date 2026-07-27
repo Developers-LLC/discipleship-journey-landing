@@ -12,8 +12,9 @@ export const PRODUCTS = {
     priceCents: 99,          // $0.99 launch price
     regularPriceCents: 399,  // $3.99
     tag: "LAUNCH PRICE",
-    /** Relative path inside /home/ubuntu/discipleship/books_pdf/ — served via S3 after purchase */
-    downloadFile: "BELONG.pdf",
+    /** S3 storage key — served via /manus-storage/ proxy after purchase */
+    downloadKey: "BELONG_e16dc2ee.pdf",
+    downloadName: "The-Discipleship-Journey-BELONG.pdf",
   },
   grow: {
     key: "grow",
@@ -23,7 +24,8 @@ export const PRODUCTS = {
     priceCents: 499,
     regularPriceCents: null,
     tag: "AVAILABLE NOW",
-    downloadFile: "GROW.pdf",
+    downloadKey: "GROW_c76a7748.pdf",
+    downloadName: "The-Discipleship-Journey-GROW.pdf",
   },
   go: {
     key: "go",
@@ -33,7 +35,8 @@ export const PRODUCTS = {
     priceCents: 499,
     regularPriceCents: null,
     tag: "AVAILABLE NOW",
-    downloadFile: "GO.pdf",
+    downloadKey: "GO_4c73c0d7.pdf",
+    downloadName: "The-Discipleship-Journey-GO.pdf",
   },
   bundle: {
     key: "bundle",
@@ -43,7 +46,8 @@ export const PRODUCTS = {
     priceCents: 999,         // $9.99 vs $13.97 separately
     regularPriceCents: 1397,
     tag: "BEST VALUE",
-    downloadFile: null,      // bundle unlocks all three books
+    downloadKey: null,       // bundle unlocks all three individual books
+    downloadName: null,
   },
 } as const;
 

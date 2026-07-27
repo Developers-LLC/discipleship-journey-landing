@@ -5,6 +5,7 @@ import { getDb } from "./db";
 import { purchases, users } from "../drizzle/schema";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import { PRODUCTS, PRODUCT_KEYS, ProductKey } from "./products";
+import { storageGetSignedUrl } from "./storage";
 
 // ─── Stripe client (lazy) ─────────────────────────────────────────────────────
 function getStripe() {
@@ -102,6 +103,29 @@ export const stripeRouter = router({
       const ownsBundle = userPurchases.some(p => p.productKey === "bundle" && p.status === "fulfilled");
       const ownsProduct = userPurchases.some(p => p.productKey === input.productKey && p.status === "fulfilled");
       return { owned: ownsBundle || ownsProduct };
+    }),
+
+  /** Generate a short-lived presigned download URL for an owned ebook (10-minute expiry) */
+  getDownloadUrl: protectedProcedure
+    .input(z.object({ productKey: z.enum(["belong", "grow", "go"]) }))
+    .mutation(async ({ ctx, input }) => {
+      // Verify ownership — bundle purchase also grants access to individual books
+      const userPurchases = await getPurchasesByUserId(ctx.user.id);
+      const ownsBundle = userPurchases.some(p => p.productKey === "bundle" && p.status === "fulfilled");
+      const ownsProduct = userPurchases.some(p => p.productKey === input.productKey && p.status === "fulfilled");
+      if (!ownsBundle && !ownsProduct) {
+        throw new Error("You do not own this book");
+      }
+
+      const product = PRODUCTS[input.productKey];
+      // TypeScript: downloadKey is defined on belong/grow/go but not bundle
+      const downloadKey = (product as { downloadKey: string }).downloadKey;
+      if (!downloadKey) throw new Error("No download file configured for this product");
+
+      // Get a presigned direct-download URL valid for 10 minutes
+      const signedUrl = await storageGetSignedUrl(downloadKey);
+      const downloadName = (product as { downloadName: string }).downloadName ?? `${product.title}.pdf`;
+      return { url: signedUrl, filename: downloadName };
     }),
 
   /** Return all product definitions (public — used by the books section) */

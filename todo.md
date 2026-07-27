@@ -39,3 +39,7 @@
 - [x] BuyButton component in Home.tsx — Stripe checkout, owned state (✓ Download), login prompt
 - [x] Books section updated — BELONG/GROW/GO/Bundle now use BuyButton instead of Amazon links
 - [x] My Books link added to desktop nav dropdown and mobile drawer (authenticated users)
+- [x] Ebook PDFs uploaded to S3 (BELONG, GROW, GO — permanent storage keys)
+- [x] products.ts updated with real S3 downloadKey and downloadName for each book
+- [x] stripeRouter.getDownloadUrl procedure — server-side ownership check + presigned URL (10-min expiry)
+- [x] Orders page DownloadButton — secure mutation-based download replacing hardcoded placeholder URLs
