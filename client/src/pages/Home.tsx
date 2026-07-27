@@ -336,7 +336,7 @@ function Nav() {
           { label: "Books", href: "#books" },
           { label: "Free Guide", href: "#free-guide" },
           { label: "For Pastors", href: "/pastor" },
-          { label: "About", href: "#about" },
+          { label: "About Me", href: "#about" },
           { label: "Reviews", href: "#reviews" },
         ].map(({ label, href }) => (
           <a
@@ -520,27 +520,24 @@ function Nav() {
           </span>
         </div>
         <div className="hidden md:flex items-center gap-8">
-        {["Books", "Free Guide", "For Pastors", "About"].map((item) => (
-           <a
-             key={item}
-             href={item === "For Pastors" ? "/pastor" : `#${item.toLowerCase().replace(" ", "-")}`}
-             className="text-sm font-medium transition-colors duration-200"
-             style={{ color: "rgba(255,255,255,0.8)", fontFamily: "'Inter', sans-serif" }}
-             onMouseEnter={e => (e.currentTarget.style.color = "#f59e0b")}
-             onMouseLeave={e => (e.currentTarget.style.color = "rgba(255,255,255,0.8)")}
-           >
-             {item}
-           </a>
-         ))}
+        {[
+          { label: "Books", href: "#books" },
+          { label: "Free Guide", href: "#free-guide" },
+          { label: "For Pastors", href: "/pastor" },
+          { label: "About Me", href: "#about" },
+          { label: "Reviews", href: "#reviews" },
+        ].map(({ label, href }) => (
           <a
-            href="#reviews"
+            key={label}
+            href={href}
             className="text-sm font-medium transition-colors duration-200"
-            style={{ color: "rgba(255,255,255,0.8)", fontFamily: "'Inter', sans-serif" }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = "#f59e0b")}
-            onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.8)")}
+            style={{ color: "rgba(255,255,255,0.8)", fontFamily: "'Inter', sans-serif", textDecoration: "none" }}
+            onMouseEnter={e => (e.currentTarget.style.color = "#f59e0b")}
+            onMouseLeave={e => (e.currentTarget.style.color = "rgba(255,255,255,0.8)")}
           >
-            Reviews
+            {label}
           </a>
+        ))}
           {!loading && !isAuthenticated && (
             <>
               <a
@@ -1469,34 +1466,250 @@ function SocialCalendar() {
 function AboutSection() {
   const { ref, visible } = useInView();
   return (
-    <section id="about" style={{ background: "#fdf8f0" }}>
-      <div className="container py-24">
-        <div ref={ref} className={`max-w-3xl mx-auto text-center transition-all duration-700 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
-          <GoldRule label="About the Series" />
-          <h2
-            className="mt-4 mb-6"
-            style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(1.8rem, 3.5vw, 2.8rem)", fontWeight: 700, color: "#0d1f3c" }}
-          >
-            Written for the Church. Grounded in Scripture.
+    <section id="about" style={{ background: "#fdf8f0" }} className="py-20 border-t border-b border-amber-900/10">
+      <div className="container max-w-5xl mx-auto px-4">
+        
+        {/* Header Badge & Title */}
+        <div ref={ref} className={`text-center max-w-3xl mx-auto mb-16 transition-all duration-700 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-4" style={{ background: "rgba(245,158,11,0.12)", border: "1px solid rgba(245,158,11,0.3)" }}>
+            <span style={{ color: "#d97706", fontFamily: "'Inter', sans-serif", fontSize: "0.8rem", fontWeight: 700, letterSpacing: "0.1em" }}>
+              🎁 APPENDIX: ABOUT THE AUTHOR & MINISTRY VISION
+            </span>
+          </div>
+          <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(2rem, 4vw, 3rem)", fontWeight: 800, color: "#0d1f3c", marginBottom: "1rem" }}>
+            ✝️ About the Author & Ministry Vision
           </h2>
-          <p style={{ fontFamily: "'Inter', sans-serif", color: "#4a5568", lineHeight: 1.8, fontSize: "1rem", marginBottom: "1.5rem" }}>
-            <em>The Discipleship Journey: From Welcome to Witness</em> was written to fill a gap in the modern church — a practical, biblically-grounded resource that walks new believers through their first steps of faith and equips them to become confident witnesses.
+          <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "1.08rem", color: "#4a5568", lineHeight: 1.8 }}>
+            <strong>Thomas Perdana</strong> (<a href="https://about.me/thomas.perdana" target="_blank" rel="noopener noreferrer" className="text-amber-600 underline font-medium">about.me/thomas.perdana</a>) is a 59-year-old third-generation Chinese-Indonesian believer who surrendered his life to Jesus Christ at age 12. Walking with the Lord for over 47 years, his heart's passion is to disciple believers, equip Kingdom leaders, and anchor new Christians in the unshakeable truth of God's Word.
           </p>
-          <p style={{ fontFamily: "'Inter', sans-serif", color: "#4a5568", lineHeight: 1.8, fontSize: "1rem", marginBottom: "2rem" }}>
-            Each book corresponds to a stage of discipleship: <strong style={{ color: "#0d1f3c" }}>BELONG</strong> (identity and community), <strong style={{ color: "#0d1f3c" }}>GROW</strong> (spiritual disciplines and transformation), and <strong style={{ color: "#0d1f3c" }}>GO</strong> (mission and witness). Together, they form a complete curriculum for CLASS 101–401 tracks.
-          </p>
-          <div className="flex flex-wrap justify-center gap-4">
-            {["KJV Bible-Based", "Small Group Ready", "New Believer Friendly", "Pastor Approved", "Church Licensed"].map(tag => (
-              <span
-                key={tag}
-                className="px-4 py-2 rounded-full text-sm font-medium"
-                style={{ background: "#0d1f3c", color: "#f59e0b", fontFamily: "'Inter', sans-serif" }}
-              >
-                {tag}
-              </span>
-            ))}
+        </div>
+
+        {/* Bio Cards Grid */}
+        <div className="grid md:grid-cols-3 gap-6 mb-12">
+          <div className="bg-white p-6 rounded-2xl shadow-sm border border-amber-900/10 hover:shadow-md transition-shadow">
+            <div className="text-3xl mb-3">🛡️</div>
+            <h3 style={{ fontFamily: "'Playfair Display', serif", color: "#0d1f3c", fontWeight: 700, fontSize: "1.15rem", marginBottom: "0.5rem" }}>
+              Jail Chaplaincy
+            </h3>
+            <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.92rem", color: "#4a5568", lineHeight: 1.6 }}>
+              Serves actively as a volunteer jail chaplain with <a href="https://www.gnglobal.org" target="_blank" rel="noopener noreferrer" className="text-amber-600 underline">Good News Global</a> at Seminole County Correctional Facility and <a href="https://ocjailministry.org" target="_blank" rel="noopener noreferrer" className="text-amber-600 underline">Orange County Jail Ministry</a> in Florida, bringing Gospel hope behind bars.
+            </p>
+          </div>
+
+          <div className="bg-white p-6 rounded-2xl shadow-sm border border-amber-900/10 hover:shadow-md transition-shadow">
+            <div className="text-3xl mb-3">📖</div>
+            <h3 style={{ fontFamily: "'Playfair Display', serif", color: "#0d1f3c", fontWeight: 700, fontSize: "1.15rem", marginBottom: "0.5rem" }}>
+              The Gideons International
+            </h3>
+            <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.92rem", color: "#4a5568", lineHeight: 1.6 }}>
+              Vice President of <a href="https://gideons.org" target="_blank" rel="noopener noreferrer" className="text-amber-600 underline">The Gideons International</a> (North Seminole County Chapter, Florida), placing God's Holy Word into hands across the globe.
+            </p>
+          </div>
+
+          <div className="bg-white p-6 rounded-2xl shadow-sm border border-amber-900/10 hover:shadow-md transition-shadow">
+            <div className="text-3xl mb-3">⛪</div>
+            <h3 style={{ fontFamily: "'Playfair Display', serif", color: "#0d1f3c", fontWeight: 700, fontSize: "1.15rem", marginBottom: "0.5rem" }}>
+              Covenant Church Family
+            </h3>
+            <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.92rem", color: "#4a5568", lineHeight: 1.6 }}>
+              Thomas and his family are active covenant members of <a href="https://westviewbaptist.org" target="_blank" rel="noopener noreferrer" className="text-amber-600 underline">Westview Baptist Church</a> in Sanford, Florida.
+            </p>
           </div>
         </div>
+
+        {/* Ministry Partnership Invitation */}
+        <div className="p-8 rounded-2xl mb-16 text-center text-white relative overflow-hidden" style={{ background: "linear-gradient(135deg, #0d1f3c 0%, #1a365d 100%)", border: "1px solid rgba(245,158,11,0.3)" }}>
+          <p style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.25rem", fontStyle: "italic", lineHeight: 1.7, marginBottom: "1rem", color: "#fef3c7" }}>
+            "Thank you for reading The Discipleship Journey! We invite you to partner with our discipleship ministry to help provide free books, study guides, and courses for seeking souls, prison chaplains, and overseas churches."
+          </p>
+        </div>
+
+        {/* Giving & Support Section */}
+        <div className="mb-16">
+          <div className="text-center mb-10">
+            <GoldRule label="Partner With Us" />
+            <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "2rem", fontWeight: 700, color: "#0d1f3c", marginTop: "0.5rem" }}>
+              Ministry Support & Feedback Options
+            </h3>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {/* Card 1: PayPal */}
+            <div className="bg-white p-6 rounded-2xl border border-amber-900/10 shadow-sm text-center flex flex-col justify-between">
+              <div>
+                <div className="text-2xl mb-2">💳</div>
+                <h4 style={{ fontFamily: "'Playfair Display', serif", color: "#0d1f3c", fontWeight: 700, fontSize: "1.1rem" }}>1. PayPal Giving</h4>
+                <p className="text-xs text-slate-500 my-2 font-mono bg-slate-50 p-2 rounded break-all">
+                  thomasperdana@gmail.com
+                </p>
+                <img src="/qrcode_paypal.png" alt="PayPal QR Code" className="w-36 h-36 mx-auto my-3 rounded-lg border p-1" />
+              </div>
+              <a
+                href="https://paypal.me/thomasperdana"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-gold block py-2 px-4 rounded-full text-xs font-bold text-center mt-2"
+                style={{ color: "#0d1f3c", textDecoration: "none" }}
+              >
+                Donate via PayPal →
+              </a>
+            </div>
+
+            {/* Card 2: Zelle */}
+            <div className="bg-white p-6 rounded-2xl border border-amber-900/10 shadow-sm text-center flex flex-col justify-between">
+              <div>
+                <div className="text-2xl mb-2">📱</div>
+                <h4 style={{ fontFamily: "'Playfair Display', serif", color: "#0d1f3c", fontWeight: 700, fontSize: "1.1rem" }}>2. Zelle Giving</h4>
+                <p className="text-xs text-slate-500 my-2 font-mono bg-slate-50 p-2 rounded break-all">
+                  thomasperdana@gmail.com
+                </p>
+                <p className="text-xs text-amber-700 font-semibold mb-2">Memo: Discipleship Book Ministry</p>
+                <img src="/qrcode_zelle.png" alt="Zelle QR Code" className="w-36 h-36 mx-auto my-3 rounded-lg border p-1" />
+              </div>
+              <span className="block py-2 px-4 rounded-full text-xs font-semibold text-center mt-2 bg-slate-100 text-slate-700">
+                Use Zelle in your Bank App
+              </span>
+            </div>
+
+            {/* Card 3: Amazon Review */}
+            <div className="bg-white p-6 rounded-2xl border border-amber-900/10 shadow-sm text-center flex flex-col justify-between">
+              <div>
+                <div className="text-2xl mb-2">⭐</div>
+                <h4 style={{ fontFamily: "'Playfair Display', serif", color: "#0d1f3c", fontWeight: 700, fontSize: "1.1rem" }}>3. Amazon Reviews</h4>
+                <p className="text-xs text-slate-600 my-2 leading-relaxed">
+                  Your honest review & 5-star rating on Amazon helps thousands of seeking readers find this series!
+                </p>
+                <img src="/qrcode_reviews.png" alt="Amazon Review QR Code" className="w-36 h-36 mx-auto my-3 rounded-lg border p-1" />
+              </div>
+              <a
+                href="#reviews"
+                className="btn-gold block py-2 px-4 rounded-full text-xs font-bold text-center mt-2"
+                style={{ color: "#0d1f3c", textDecoration: "none" }}
+              >
+                Leave Amazon Review ⭐
+              </a>
+            </div>
+
+            {/* Card 4: Comments & Feedback */}
+            <div className="bg-white p-6 rounded-2xl border border-amber-900/10 shadow-sm text-center flex flex-col justify-between">
+              <div>
+                <div className="text-2xl mb-2">💬</div>
+                <h4 style={{ fontFamily: "'Playfair Display', serif", color: "#0d1f3c", fontWeight: 700, fontSize: "1.1rem" }}>4. Feedback & Contact</h4>
+                <p className="text-xs text-slate-600 my-2 leading-relaxed">
+                  We love hearing your testimony and input on how to improve current or future editions!
+                </p>
+                <p className="text-xs text-slate-500 font-mono bg-slate-50 p-2 rounded break-all my-2">
+                  thomasperdana@gmail.com
+                </p>
+              </div>
+              <a
+                href="https://bible.thomasperdana.com/#reviews"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block py-2 px-4 rounded-full text-xs font-bold text-center mt-2 border border-amber-600 text-amber-700 hover:bg-amber-50"
+                style={{ textDecoration: "none" }}
+              >
+                Submit Feedback →
+              </a>
+            </div>
+          </div>
+        </div>
+
+        {/* 📚 3 Discipleship Books Interactive Showcase & QR Codes */}
+        <div className="mb-16 bg-white p-8 rounded-3xl border border-amber-900/10 shadow-sm">
+          <div className="text-center mb-8">
+            <GoldRule label="The Series Edition" />
+            <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.8rem", fontWeight: 700, color: "#0d1f3c", marginTop: "0.5rem" }}>
+              📚 The 3 Discipleship Books Series
+            </h3>
+            <p className="text-sm text-slate-600 mt-1">Scan or click below to open the interactive online edition for each book:</p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            {/* Book 1 */}
+            <div className="text-center p-5 rounded-2xl bg-amber-50/50 border border-amber-200/60">
+              <span className="inline-block px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-900 mb-2">Book 1</span>
+              <h4 style={{ fontFamily: "'Playfair Display', serif", color: "#0d1f3c", fontWeight: 700, fontSize: "1.2rem" }}>BELONG</h4>
+              <p className="text-xs text-slate-500 mb-3">Identity & Community (CLASS 101)</p>
+              <img src="/qrcode_book1.png" alt="Book 1 QR Code" className="w-36 h-36 mx-auto my-3 rounded-lg border p-1 bg-white" />
+              <a
+                href="https://bible.thomasperdana.com/#belong"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-gold inline-block py-2 px-5 rounded-full text-xs font-bold"
+                style={{ color: "#0d1f3c", textDecoration: "none" }}
+              >
+                Read Book 1 →
+              </a>
+            </div>
+
+            {/* Book 2 */}
+            <div className="text-center p-5 rounded-2xl bg-amber-50/50 border border-amber-200/60">
+              <span className="inline-block px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-900 mb-2">Book 2</span>
+              <h4 style={{ fontFamily: "'Playfair Display', serif", color: "#0d1f3c", fontWeight: 700, fontSize: "1.2rem" }}>GROW</h4>
+              <p className="text-xs text-slate-500 mb-3">Disciplines & Growth (CLASS 201+301)</p>
+              <img src="/qrcode_book2.png" alt="Book 2 QR Code" className="w-36 h-36 mx-auto my-3 rounded-lg border p-1 bg-white" />
+              <a
+                href="https://bible.thomasperdana.com/#grow"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-gold inline-block py-2 px-5 rounded-full text-xs font-bold"
+                style={{ color: "#0d1f3c", textDecoration: "none" }}
+              >
+                Read Book 2 →
+              </a>
+            </div>
+
+            {/* Book 3 */}
+            <div className="text-center p-5 rounded-2xl bg-amber-50/50 border border-amber-200/60">
+              <span className="inline-block px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-900 mb-2">Book 3</span>
+              <h4 style={{ fontFamily: "'Playfair Display', serif", color: "#0d1f3c", fontWeight: 700, fontSize: "1.2rem" }}>GO</h4>
+              <p className="text-xs text-slate-500 mb-3">Mission & Witness (CLASS 401)</p>
+              <img src="/qrcode_book3.png" alt="Book 3 QR Code" className="w-36 h-36 mx-auto my-3 rounded-lg border p-1 bg-white" />
+              <a
+                href="https://bible.thomasperdana.com/#go"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-gold inline-block py-2 px-5 rounded-full text-xs font-bold"
+                style={{ color: "#0d1f3c", textDecoration: "none" }}
+              >
+                Read Book 3 →
+              </a>
+            </div>
+          </div>
+        </div>
+
+        {/* 🚀 All-In-One Automated Ministry Hub */}
+        <div className="p-8 rounded-3xl text-center border border-amber-500/30 shadow-lg" style={{ background: "linear-gradient(180deg, #0d1f3c 0%, #060f1e 100%)" }}>
+          <div className="inline-flex items-center gap-2 px-4 py-1 rounded-full mb-3 bg-amber-500/10 border border-amber-500/30">
+            <span style={{ color: "#f59e0b", fontFamily: "'Inter', sans-serif", fontSize: "0.78rem", fontWeight: 700, letterSpacing: "0.1em" }}>
+              🚀 ALL-IN-ONE AUTOMATED MINISTRY HUB
+            </span>
+          </div>
+          <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.8rem", fontWeight: 800, color: "#fff", marginBottom: "0.5rem" }}>
+            Access Everything on Your Mobile Device
+          </h3>
+          <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.95rem", color: "rgba(255,255,255,0.75)", maxWidth: "600px" }} className="mx-auto mb-6">
+            Scan the master QR code below to access all options (The 3 Books, PayPal, Zelle, Amazon Reviews, and Feedback) on one mobile-friendly page:
+          </p>
+
+          <div className="bg-white p-4 rounded-2xl inline-block shadow-md my-2">
+            <img src="/qrcode_hub.png" alt="Master Ministry Hub QR Code" className="w-48 h-48 rounded-lg" />
+          </div>
+
+          <div className="mt-4">
+            <a
+              href="https://bible.thomasperdana.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-gold inline-block py-3 px-8 rounded-full text-sm font-extrabold"
+              style={{ color: "#0d1f3c", textDecoration: "none", boxShadow: "0 4px 20px rgba(245,158,11,0.3)" }}
+            >
+              🌐 Open Master Hub (bible.thomasperdana.com) →
+            </a>
+          </div>
+        </div>
+
       </div>
     </section>
   );
