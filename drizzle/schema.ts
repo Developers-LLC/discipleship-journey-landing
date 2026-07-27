@@ -1,41 +1,42 @@
-import { boolean, int, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
+import { boolean, integer, pgEnum, pgTable, serial, text, timestamp, varchar } from "drizzle-orm/pg-core";
+
+export const roleEnum = pgEnum("role", ["user", "admin"]);
+export const twoFactorMethodEnum = pgEnum("two_factor_method", ["totp", "sms"]);
 
 /**
  * Core user table backing auth flow.
  * Extend this file with additional tables as your product grows.
  * Columns use camelCase to match both database fields and generated types.
  */
-export const users = mysqlTable("users", {
+export const users = pgTable("users", {
   /**
-   * Surrogate primary key. Auto-incremented numeric value managed by the database.
+   * Surrogate primary key. Auto-incremented numeric value managed by PostgreSQL.
    * Use this for relations between tables.
    */
-  id: int("id").autoincrement().primaryKey(),
-  /** Manus OAuth identifier (openId) returned from the OAuth callback. Unique per user. */
+  id: serial("id").primaryKey(),
+  /** OAuth identifier (openId) returned from the OAuth callback. Unique per user. */
   openId: varchar("openId", { length: 64 }).notNull().unique(),
   name: text("name"),
   email: varchar("email", { length: 320 }),
   loginMethod: varchar("loginMethod", { length: 64 }),
-  role: mysqlEnum("role", ["user", "admin"]).default("user").notNull(),
+  role: roleEnum("role").default("user").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().notNull(),
   lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),
 });
 
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 
-// TODO: Add your tables here
-
 /**
  * Two-factor authentication settings per user.
  * A user can have at most one active 2FA method at a time.
  */
-export const twoFactorAuth = mysqlTable("two_factor_auth", {
-  id: int("id").autoincrement().primaryKey(),
-  userId: int("userId").notNull().unique(),
+export const twoFactorAuth = pgTable("two_factor_auth", {
+  id: serial("id").primaryKey(),
+  userId: integer("userId").notNull().unique(),
   /** 'totp' = authenticator app, 'sms' = SMS OTP via Twilio */
-  method: mysqlEnum("method", ["totp", "sms"]).notNull(),
+  method: twoFactorMethodEnum("method").notNull(),
   /** AES-256-GCM encrypted TOTP secret (null for SMS method) */
   totpSecret: text("totpSecret"),
   /** E.164 phone number for SMS method (null for TOTP) */
@@ -45,7 +46,7 @@ export const twoFactorAuth = mysqlTable("two_factor_auth", {
   /** JSON array of one-time backup codes (hashed) */
   backupCodes: text("backupCodes"),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().notNull(),
 });
 
 export type TwoFactorAuth = typeof twoFactorAuth.$inferSelect;
@@ -57,11 +58,11 @@ export type InsertTwoFactorAuth = typeof twoFactorAuth.$inferInsert;
  * instead of issuing the full session cookie. The user must pass the 2FA
  * challenge to exchange this token for a real session.
  */
-export const pendingTwoFactor = mysqlTable("pending_two_factor", {
-  id: int("id").autoincrement().primaryKey(),
+export const pendingTwoFactor = pgTable("pending_two_factor", {
+  id: serial("id").primaryKey(),
   /** Opaque random token sent to the browser as a short-lived cookie */
   token: varchar("token", { length: 128 }).notNull().unique(),
-  userId: int("userId").notNull(),
+  userId: integer("userId").notNull(),
   openId: varchar("openId", { length: 64 }).notNull(),
   userName: text("userName"),
   /** Expiry — 10 minutes from creation */
