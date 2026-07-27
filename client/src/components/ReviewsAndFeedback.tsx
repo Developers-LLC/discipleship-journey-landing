@@ -420,16 +420,18 @@ export default function ReviewsAndFeedback() {
             </div>
           </div>
 
-          {/* Right: Form */}
-          <div
-            className="rounded-2xl p-8"
-            style={{
-              background: "#fff",
-              boxShadow: "0 8px 40px rgba(13,31,60,0.1)",
-              border: "1px solid rgba(13,31,60,0.06)",
-            }}
-          >
-            {submitted ? (
+         {/* Right: Form */}
+         <div
+           className="rounded-2xl p-8"
+           style={{
+             background: "#fff",
+             boxShadow: "0 8px 40px rgba(13,31,60,0.1)",
+             border: "1px solid rgba(13,31,60,0.06)",
+           }}
+         >
+            {/* Anchor so bible.thomasperdana.com/#leave-review jumps directly to the form */}
+            <span id="leave-review" style={{ display: "block", position: "relative", top: "-80px", visibility: "hidden" }} aria-hidden="true" />
+           {submitted ? (
               <div className="text-center py-8">
                 <div
                   className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"

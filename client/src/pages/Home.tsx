@@ -155,18 +155,27 @@ function Nav() {
           </span>
         </div>
         <div className="hidden md:flex items-center gap-8">
-          {["Books", "Free Guide", "For Pastors", "About"].map((item) => (
-            <a
-              key={item}
-              href={item === "For Pastors" ? "/pastor" : `#${item.toLowerCase().replace(" ", "-")}`}
-              className="text-sm font-medium transition-colors duration-200"
-              style={{ color: "rgba(255,255,255,0.8)", fontFamily: "'Inter', sans-serif" }}
-              onMouseEnter={e => (e.currentTarget.style.color = "#f59e0b")}
-              onMouseLeave={e => (e.currentTarget.style.color = "rgba(255,255,255,0.8)")}
-            >
-              {item}
-            </a>
-          ))}
+        {["Books", "Free Guide", "For Pastors", "About"].map((item) => (
+           <a
+             key={item}
+             href={item === "For Pastors" ? "/pastor" : `#${item.toLowerCase().replace(" ", "-")}`}
+             className="text-sm font-medium transition-colors duration-200"
+             style={{ color: "rgba(255,255,255,0.8)", fontFamily: "'Inter', sans-serif" }}
+             onMouseEnter={e => (e.currentTarget.style.color = "#f59e0b")}
+             onMouseLeave={e => (e.currentTarget.style.color = "rgba(255,255,255,0.8)")}
+           >
+             {item}
+           </a>
+         ))}
+          <a
+            href="#reviews"
+            className="text-sm font-medium transition-colors duration-200"
+            style={{ color: "rgba(255,255,255,0.8)", fontFamily: "'Inter', sans-serif" }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = "#f59e0b")}
+            onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.8)")}
+          >
+            Reviews
+          </a>
           <a
             href="#free-guide"
             className="btn-gold px-5 py-2 rounded-full text-sm font-bold"
