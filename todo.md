@@ -26,3 +26,9 @@
 - [x] Google sign-in button in desktop nav (white pill with Google G logo)
 - [x] Google sign-in button in mobile drawer nav
 - [x] Google sign-in button on Profile page unauthenticated gate
+- [x] Two-factor authentication — TOTP (authenticator app) + SMS (Twilio Verify)
+- [x] 2FA schema: two_factor_auth and pending_two_factor tables
+- [x] 2FA backend: twoFactorRouter with status, setupTotp, confirmTotp, sendSmsCode, confirmSms, disable, verifyChallenge
+- [x] 2FA frontend: TwoFactorSection on Profile page with TOTP QR setup, SMS setup, backup codes, disable flow
+- [x] 2FA challenge page: /2fa-challenge with 6-digit code entry and backup code support
+- [x] OAuth callback intercept: redirects to /2fa-challenge when 2FA is enabled

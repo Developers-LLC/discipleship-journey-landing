@@ -1,6 +1,6 @@
-import { eq } from "drizzle-orm";
+import { and, eq, gt, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users } from "../drizzle/schema";
+import { InsertTwoFactorAuth, InsertUser, pendingTwoFactor, twoFactorAuth, users } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -98,4 +98,62 @@ export async function updateUserName(openId: string, name: string): Promise<void
     return;
   }
   await db.update(users).set({ name, updatedAt: new Date() }).where(eq(users.openId, openId));
+}
+
+// ─── 2FA helpers ─────────────────────────────────────────────────────────────
+
+export async function getTwoFactorByUserId(userId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(twoFactorAuth).where(eq(twoFactorAuth.userId, userId)).limit(1);
+  return result[0] ?? undefined;
+}
+
+export async function upsertTwoFactor(data: InsertTwoFactorAuth): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+  await db.insert(twoFactorAuth).values(data).onDuplicateKeyUpdate({ set: data });
+}
+
+export async function enableTwoFactor(userId: number, backupCodes: string): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+  await db.update(twoFactorAuth)
+    .set({ isEnabled: true, backupCodes, updatedAt: new Date() })
+    .where(eq(twoFactorAuth.userId, userId));
+}
+
+export async function disableTwoFactor(userId: number): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+  await db.delete(twoFactorAuth).where(eq(twoFactorAuth.userId, userId));
+}
+
+// ─── Pending 2FA session helpers ─────────────────────────────────────────────
+
+export async function createPendingTwoFactor(data: {
+  token: string;
+  userId: number;
+  openId: string;
+  userName: string | null;
+  expiresAt: Date;
+}): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+  await db.insert(pendingTwoFactor).values(data);
+}
+
+export async function getPendingTwoFactor(token: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(pendingTwoFactor)
+    .where(and(eq(pendingTwoFactor.token, token), gt(pendingTwoFactor.expiresAt, sql`NOW()`)))
+    .limit(1);
+  return result[0] ?? undefined;
+}
+
+export async function deletePendingTwoFactor(token: string): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+  await db.delete(pendingTwoFactor).where(eq(pendingTwoFactor.token, token));
 }

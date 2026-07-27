@@ -48,15 +48,32 @@ export function registerOAuthRoutes(app: Express) {
         lastSignedIn: new Date(),
       });
 
-      const sessionToken = await sdk.createSessionToken(userInfo.openId, {
-        name: userInfo.name || "",
-        expiresInMs: ONE_YEAR_MS,
-      });
+      // Check if user has 2FA enabled
+      const user = await db.getUserByOpenId(userInfo.openId);
+      const tfa = user ? await db.getTwoFactorByUserId(user.id) : null;
 
-      const cookieOptions = getSessionCookieOptions(req);
-      res.cookie(COOKIE_NAME, sessionToken, { ...cookieOptions, maxAge: ONE_YEAR_MS });
-
-      res.redirect(302, "/");
+      if (tfa?.isEnabled) {
+        // Issue a short-lived pending token instead of the real session
+        const pendingToken = require("crypto").randomBytes(32).toString("hex");
+        const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+        await db.createPendingTwoFactor({
+          token: pendingToken,
+          userId: user!.id,
+          openId: userInfo.openId,
+          userName: userInfo.name ?? null,
+          expiresAt,
+        });
+        // Redirect to 2FA challenge page with the pending token
+        res.redirect(302, `/2fa-challenge?token=${pendingToken}`);
+      } else {
+        const sessionToken = await sdk.createSessionToken(userInfo.openId, {
+          name: userInfo.name || "",
+          expiresInMs: ONE_YEAR_MS,
+        });
+        const cookieOptions = getSessionCookieOptions(req);
+        res.cookie(COOKIE_NAME, sessionToken, { ...cookieOptions, maxAge: ONE_YEAR_MS });
+        res.redirect(302, "/");
+      }
     } catch (error) {
       console.error("[OAuth] Callback failed", error);
       res.status(500).json({ error: "OAuth callback failed" });

@@ -7,6 +7,7 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
 import PastorFunnel from "./pages/PastorFunnel";
 import Profile from "./pages/Profile";
+import TwoFactorChallenge from "./pages/TwoFactorChallenge";
 function Router() {
   // make sure to consider if you need authentication for certain routes
   return (
@@ -14,6 +15,7 @@ function Router() {
       <Route path={"/"} component={Home} />
       <Route path={"/pastor"} component={PastorFunnel} />
       <Route path={"/profile"} component={Profile} />
+      <Route path={"/2fa-challenge"} component={TwoFactorChallenge} />
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />
     </Switch>
