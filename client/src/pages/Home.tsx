@@ -226,7 +226,7 @@ function Nav() {
           className="btn-gold block text-center px-6 py-4 rounded-full text-sm font-bold w-full"
           style={{ color: "#0d1f3c", fontFamily: "'Inter', sans-serif", textDecoration: "none" }}
         >
-          Yes — Get My Free Guide ✦
+          Yes — Download the Free Guide ✦
         </a>
         <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.75rem", textAlign: "center", marginTop: "0.75rem", fontFamily: "'Inter', sans-serif" }}>
           Free. No spam. Unsubscribe anytime.
@@ -287,7 +287,7 @@ function Nav() {
             className="btn-gold px-5 py-2 rounded-full text-sm font-bold"
             style={{ color: "#0d1f3c", fontFamily: "'Inter', sans-serif", textDecoration: "none" }}
           >
-            Get Free Guide
+            Download Free Guide
           </a>
         </div>
 
@@ -390,7 +390,7 @@ function Hero() {
               className="btn-gold px-8 py-4 rounded-full font-bold text-center"
               style={{ color: "#0d1f3c", fontFamily: "'Inter', sans-serif", fontSize: "1rem", textDecoration: "none", display: "inline-block" }}
             >
-              Yes — Send Me the Free Guide ✦
+              Yes — Download the Free Guide ✦
             </a>
             <a
               href="#books"
@@ -506,7 +506,7 @@ function LeadMagnet() {
                 <div style={{ fontSize: "2.5rem", marginBottom: "0.5rem" }}>✦</div>
                 <h3 style={{ fontFamily: "'Playfair Display', serif", color: "#f59e0b", fontSize: "1.4rem", marginBottom: "0.5rem" }}>Welcome to the Journey!</h3>
                 <p style={{ color: "rgba(255,255,255,0.8)", fontFamily: "'Inter', sans-serif", fontSize: "0.9rem" }}>
-                  Check your inbox — your free guide is on its way. Watch for our 3-day email series with deeper insights from the series.
+                  Your PDF is downloading now. Enjoy the guide — and watch for our 3-day email series with deeper insights from the series.
                 </p>
               </div>
             ) : (
@@ -544,7 +544,7 @@ function LeadMagnet() {
                   onBlur={e => (e.target.style.borderColor = "rgba(255,255,255,0.15)")}
                 />
                 <button type="submit" className="btn-gold w-full py-4 rounded-xl font-bold text-base" style={{ color: "#0d1f3c", fontFamily: "'Inter', sans-serif" }}>
-                  Yes — Send Me the Free Guide ✦
+                  Yes — Download the Free Guide ✦
                 </button>
                 <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.75rem", textAlign: "center", fontFamily: "'Inter', sans-serif" }}>
                   No spam. Unsubscribe anytime. Your information is safe.
@@ -1071,7 +1071,7 @@ function MobileStickyCTA() {
           <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
           <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
         </svg>
-        Get Free Guide ✦
+        Download Free Guide ✦
       </a>
     </div>
   );
