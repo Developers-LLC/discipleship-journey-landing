@@ -123,12 +123,118 @@ function SocialIcon({ type }: { type: string }) {
 // ─── Sticky Nav ───────────────────────────────────────────────────────────────
 function Nav() {
   const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  // Close menu on route/hash navigation
+  const handleNavClick = () => setMenuOpen(false);
+
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 40);
     window.addEventListener("scroll", handler);
     return () => window.removeEventListener("scroll", handler);
   }, []);
+
+  // Prevent body scroll when menu is open
+  useEffect(() => {
+    document.body.style.overflow = menuOpen ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [menuOpen]);
+
   return (
+    <>
+    {/* ── Mobile backdrop ── */}
+    {menuOpen && (
+      <div
+        className="fixed inset-0 z-40 md:hidden"
+        style={{ background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)" }}
+        onClick={() => setMenuOpen(false)}
+      />
+    )}
+
+    {/* ── Mobile slide-in drawer ── */}
+    <div
+      className="fixed top-0 right-0 h-full z-50 md:hidden flex flex-col"
+      style={{
+        width: "min(320px, 85vw)",
+        background: "#0d1f3c",
+        borderLeft: "1px solid rgba(245,158,11,0.25)",
+        transform: menuOpen ? "translateX(0)" : "translateX(100%)",
+        transition: "transform 0.32s cubic-bezier(0.23,1,0.32,1)",
+        boxShadow: menuOpen ? "-8px 0 40px rgba(0,0,0,0.5)" : "none",
+      }}
+    >
+      {/* Drawer header */}
+      <div className="flex items-center justify-between px-6 py-5" style={{ borderBottom: "1px solid rgba(245,158,11,0.15)" }}>
+        <div className="flex items-center gap-2">
+          <svg width="32" height="32" viewBox="0 0 40 40" fill="none">
+            <rect width="40" height="40" rx="8" fill="#f59e0b" fillOpacity="0.12"/>
+            <path d="M8 28V14c0-1.1.9-2 2-2h8c1.1 0 2 .9 2 2v14" stroke="#f59e0b" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M20 28V14c0-1.1.9-2 2-2h8c1.1 0 2 .9 2 2v14" stroke="#f59e0b" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M8 28h24" stroke="#f59e0b" strokeWidth="1.5" strokeLinecap="round"/>
+            <path d="M20 4v8M17 7h6" stroke="#f59e0b" strokeWidth="1.8" strokeLinecap="round"/>
+          </svg>
+          <span style={{ fontFamily: "'Playfair Display', serif", color: "#fff", fontWeight: 700, fontSize: "0.95rem" }}>
+            The Discipleship Journey
+          </span>
+        </div>
+        {/* Close button */}
+        <button
+          onClick={() => setMenuOpen(false)}
+          aria-label="Close menu"
+          style={{ color: "rgba(255,255,255,0.7)", background: "none", border: "none", padding: "4px", cursor: "pointer" }}
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+            <path d="M18 6L6 18M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      {/* Drawer nav links */}
+      <nav className="flex flex-col px-6 py-8 gap-1" style={{ flex: 1 }}>
+        {[
+          { label: "Books", href: "#books" },
+          { label: "Free Guide", href: "#free-guide" },
+          { label: "For Pastors", href: "/pastor" },
+          { label: "About", href: "#about" },
+          { label: "Reviews", href: "#reviews" },
+        ].map(({ label, href }) => (
+          <a
+            key={label}
+            href={href}
+            onClick={handleNavClick}
+            className="flex items-center gap-3 py-4 text-base font-medium transition-colors duration-200"
+            style={{
+              color: "rgba(255,255,255,0.85)",
+              fontFamily: "'Inter', sans-serif",
+              borderBottom: "1px solid rgba(255,255,255,0.06)",
+              textDecoration: "none",
+            }}
+            onMouseEnter={e => (e.currentTarget.style.color = "#f59e0b")}
+            onMouseLeave={e => (e.currentTarget.style.color = "rgba(255,255,255,0.85)")}
+          >
+            <span style={{ width: 4, height: 4, borderRadius: "50%", background: "#f59e0b", flexShrink: 0 }} />
+            {label}
+          </a>
+        ))}
+      </nav>
+
+      {/* Drawer CTA */}
+      <div className="px-6 pb-10">
+        <a
+          href="#free-guide"
+          onClick={handleNavClick}
+          className="btn-gold block text-center px-6 py-4 rounded-full text-sm font-bold w-full"
+          style={{ color: "#0d1f3c", fontFamily: "'Inter', sans-serif", textDecoration: "none" }}
+        >
+          Yes — Get My Free Guide ✦
+        </a>
+        <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.75rem", textAlign: "center", marginTop: "0.75rem", fontFamily: "'Inter', sans-serif" }}>
+          Free. No spam. Unsubscribe anytime.
+        </p>
+      </div>
+    </div>
+
+    {/* ── Top navbar ── */}
     <nav
       className="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
       style={{
@@ -184,8 +290,37 @@ function Nav() {
             Get Free Guide
           </a>
         </div>
+
+        {/* ── Hamburger button (mobile only) ── */}
+        <button
+          className="md:hidden flex flex-col justify-center items-center gap-[5px] p-2"
+          onClick={() => setMenuOpen(true)}
+          aria-label="Open menu"
+          aria-expanded={menuOpen}
+          style={{ background: "none", border: "none", cursor: "pointer" }}
+        >
+          <span
+            style={{
+              display: "block", width: 24, height: 2, background: "#f59e0b", borderRadius: 2,
+              transition: "all 0.2s ease",
+            }}
+          />
+          <span
+            style={{
+              display: "block", width: 18, height: 2, background: "#f59e0b", borderRadius: 2,
+              transition: "all 0.2s ease",
+            }}
+          />
+          <span
+            style={{
+              display: "block", width: 24, height: 2, background: "#f59e0b", borderRadius: 2,
+              transition: "all 0.2s ease",
+            }}
+          />
+        </button>
       </div>
     </nav>
+    </>
   );
 }
 
