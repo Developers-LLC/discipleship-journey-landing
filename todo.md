@@ -22,4 +22,7 @@
 - [x] Backend profile.updateName procedure (updates display name in DB)
 - [x] updateUserName DB helper in server/db.ts
 - [x] Vitest tests for profile procedures
-
+- [x] Gmail/Google social login — startGoogleLogin() helper in const.ts (provider=google param)
+- [x] Google sign-in button in desktop nav (white pill with Google G logo)
+- [x] Google sign-in button in mobile drawer nav
+- [x] Google sign-in button on Profile page unauthenticated gate
