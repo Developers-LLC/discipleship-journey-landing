@@ -435,7 +435,7 @@ function ScriptureBanner() {
 // ─── Books Section ────────────────────────────────────────────────────────────
 const BOOKS = [
   {
-    img: "/manus-storage/book1_cover_23109ff2.jpg",
+    img: "/manus-storage/BELONG_KDP_Cover_8e45f300.jpg",
     title: "BELONG",
     subtitle: "Book 1 — You Are Welcomed",
     price: "$0.99",
@@ -446,7 +446,7 @@ const BOOKS = [
     amazon: "#",
   },
   {
-    img: "/manus-storage/book2_cover_5634e845.jpg",
+    img: "/manus-storage/GROW_KDP_Cover_ea301040.jpg",
     title: "GROW",
     subtitle: "Book 2 — You Are Transformed",
     price: "$4.99",
@@ -456,7 +456,7 @@ const BOOKS = [
     amazon: "#",
   },
   {
-    img: "/manus-storage/book3_cover_95ee3b34.jpg",
+    img: "/manus-storage/GO_KDP_Cover_3681b44e.jpg",
     title: "GO",
     subtitle: "Book 3 — You Are Sent",
     price: "$4.99",
