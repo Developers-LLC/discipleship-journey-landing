@@ -7,6 +7,7 @@
 import { useState, useEffect, useRef } from "react";
 import React from "react";
 import { Link } from "wouter";
+import ReviewsAndFeedback from "@/components/ReviewsAndFeedback";
 
 // ─── Scroll-triggered fade-up hook ───────────────────────────────────────────
 function useInView(threshold = 0.15) {
@@ -861,6 +862,7 @@ export default function Home() {
       <LeadMagnet />
       <ScriptureBanner />
       <BooksSection />
+      <ReviewsAndFeedback />
       <LaunchTimeline />
       <ForPastors />
       <SocialCalendar />
