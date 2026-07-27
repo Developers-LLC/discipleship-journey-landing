@@ -200,7 +200,7 @@ function Hero() {
       <div
         className="absolute inset-0"
         style={{
-          backgroundImage: "url('/manus-storage/hero_banner_7d348975.jpg')",
+          backgroundImage: "url('/manus-storage/hero_banner_kdp_v2_1159854e.jpg')",
           backgroundSize: "cover",
           backgroundPosition: "center top",
           opacity: 0.55,
