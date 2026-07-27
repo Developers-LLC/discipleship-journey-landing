@@ -1,4 +1,6 @@
 import type { Express } from "express";
+import fs from "fs";
+import path from "path";
 import { ENV } from "./env";
 
 export function registerStorageProxy(app: Express) {
@@ -9,40 +11,47 @@ export function registerStorageProxy(app: Express) {
       return;
     }
 
-    if (!ENV.forgeApiUrl || !ENV.forgeApiKey) {
-      res.status(500).send("Storage proxy not configured");
-      return;
+    // Attempt Forge API if configured
+    if (ENV.forgeApiUrl && ENV.forgeApiKey) {
+      try {
+        const forgeUrl = new URL(
+          "v1/storage/presign/get",
+          ENV.forgeApiUrl.replace(/\/+$/, "") + "/",
+        );
+        forgeUrl.searchParams.set("path", key);
+
+        const forgeResp = await fetch(forgeUrl, {
+          headers: { Authorization: `Bearer ${ENV.forgeApiKey}` },
+        });
+
+        if (forgeResp.ok) {
+          const { url } = (await forgeResp.json()) as { url: string };
+          if (url) {
+            res.set("Cache-Control", "no-store");
+            res.redirect(307, url);
+            return;
+          }
+        }
+      } catch (err) {
+        console.warn("[StorageProxy] Forge API lookup failed, trying local fallback:", err);
+      }
     }
 
-    try {
-      const forgeUrl = new URL(
-        "v1/storage/presign/get",
-        ENV.forgeApiUrl.replace(/\/+$/, "") + "/",
-      );
-      forgeUrl.searchParams.set("path", key);
+    // Fallback: serve local artifact file from public/manus-storage or docs
+    const possiblePaths = [
+      path.resolve(process.cwd(), "client/public/manus-storage", key),
+      path.resolve(process.cwd(), "dist/public/manus-storage", key),
+      path.resolve(process.cwd(), "public/manus-storage", key),
+      path.resolve(process.cwd(), "docs", key),
+    ];
 
-      const forgeResp = await fetch(forgeUrl, {
-        headers: { Authorization: `Bearer ${ENV.forgeApiKey}` },
-      });
-
-      if (!forgeResp.ok) {
-        const body = await forgeResp.text().catch(() => "");
-        console.error(`[StorageProxy] forge error: ${forgeResp.status} ${body}`);
-        res.status(502).send("Storage backend error");
+    for (const filePath of possiblePaths) {
+      if (fs.existsSync(filePath)) {
+        res.sendFile(filePath);
         return;
       }
-
-      const { url } = (await forgeResp.json()) as { url: string };
-      if (!url) {
-        res.status(502).send("Empty signed URL from backend");
-        return;
-      }
-
-      res.set("Cache-Control", "no-store");
-      res.redirect(307, url);
-    } catch (err) {
-      console.error("[StorageProxy] failed:", err);
-      res.status(502).send("Storage proxy error");
     }
+
+    res.status(404).send(`File non-existent: ${key}`);
   });
 }
