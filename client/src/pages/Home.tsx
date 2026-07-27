@@ -632,10 +632,25 @@ function BooksSection() {
                 transitionDelay: `${i * 80}ms`,
               }}
             >
-              <div className="relative overflow-hidden" style={{ aspectRatio: "2/3", maxHeight: 340 }}>
-                <img src={book.img} alt={book.title} className="w-full h-full object-cover" />
+              {/* KDP cover — full portrait, no crop */}
+              <div className="relative" style={{ background: "#0d1f3c", padding: "1.25rem 1.25rem 0" }}>
                 <div
-                  className="absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-bold"
+                  className="relative overflow-hidden rounded-xl"
+                  style={{
+                    aspectRatio: "1 / 1.6",
+                    boxShadow: "0 12px 40px rgba(0,0,0,0.35), 0 2px 8px rgba(0,0,0,0.2)",
+                  }}
+                >
+                  <img
+                    src={book.img}
+                    alt={`${book.title} — The Discipleship Journey Book Cover`}
+                    className="w-full h-full"
+                    style={{ objectFit: "cover", objectPosition: "center top", display: "block" }}
+                  />
+                </div>
+                {/* Tag badge */}
+                <div
+                  className="absolute top-5 right-5 px-3 py-1 rounded-full text-xs font-bold"
                   style={{ background: "#f59e0b", color: "#0d1f3c", fontFamily: "'Inter', sans-serif", letterSpacing: "0.05em" }}
                 >
                   {book.tag}
