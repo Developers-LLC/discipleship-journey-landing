@@ -15,6 +15,13 @@
       "when": 1785173884832,
       "tag": "0001_panoramic_dakota_north",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1785175619914,
+      "tag": "0002_striped_sandman",
+      "breakpoints": true
     }
   ]
 }

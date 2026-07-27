@@ -14,6 +14,125 @@ import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { useLocation } from "wouter";
 
+// ─── Gift Modal ───────────────────────────────────────────────────────────────
+function GiftModal({
+  productKey,
+  productTitle,
+  onClose,
+}: {
+  productKey: "belong" | "grow" | "go" | "bundle";
+  productTitle: string;
+  onClose: () => void;
+}) {
+  const { isAuthenticated } = useAuth();
+  const [recipientEmail, setRecipientEmail] = useState("");
+  const [recipientName, setRecipientName] = useState("");
+  const [message, setMessage] = useState("");
+
+  const giftCheckout = trpc.stripe.createGiftCheckout.useMutation({
+    onSuccess: ({ url }) => {
+      toast.info("Redirecting to checkout…");
+      window.open(url, "_blank");
+      onClose();
+    },
+    onError: (err) => toast.error(err.message),
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!isAuthenticated) {
+      toast.info("Please sign in to send a gift");
+      startLogin();
+      return;
+    }
+    giftCheckout.mutate({ productKey, recipientEmail, recipientName: recipientName || undefined, message: message || undefined });
+  };
+
+  return (
+    <div
+      style={{ position: "fixed", inset: 0, zIndex: 100, background: "rgba(0,0,0,0.7)", backdropFilter: "blur(6px)", display: "flex", alignItems: "center", justifyContent: "center", padding: "1.5rem" }}
+      onClick={e => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      <div
+        style={{ background: "#0d1f3c", border: "1px solid rgba(245,158,11,0.25)", borderRadius: "1.25rem", padding: "2rem", maxWidth: 480, width: "100%", boxShadow: "0 30px 80px rgba(0,0,0,0.6)" }}
+        onClick={e => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1.25rem" }}>
+          <div>
+            <div style={{ display: "inline-flex", alignItems: "center", gap: "0.35rem", background: "rgba(245,158,11,0.12)", border: "1px solid rgba(245,158,11,0.25)", borderRadius: "9999px", padding: "0.25rem 0.75rem", fontSize: "0.72rem", fontWeight: 700, color: "#f59e0b", fontFamily: "'Inter', sans-serif", letterSpacing: "0.06em", marginBottom: "0.5rem" }}>
+              🎁 GIFT A BOOK
+            </div>
+            <h3 style={{ fontFamily: "'Playfair Display', serif", color: "#fff", fontSize: "1.2rem", fontWeight: 700, margin: 0 }}>
+              Send {productTitle}
+            </h3>
+          </div>
+          <button onClick={onClose} style={{ background: "none", border: "none", color: "rgba(255,255,255,0.5)", cursor: "pointer", padding: "4px", fontSize: "1.25rem", lineHeight: 1 }}>✕</button>
+        </div>
+
+        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "0.875rem" }}>
+          <div>
+            <label style={{ display: "block", fontFamily: "'Inter', sans-serif", fontSize: "0.78rem", color: "rgba(255,255,255,0.6)", marginBottom: "0.35rem", fontWeight: 600, letterSpacing: "0.04em" }}>
+              RECIPIENT EMAIL *
+            </label>
+            <input
+              type="email"
+              required
+              placeholder="friend@example.com"
+              value={recipientEmail}
+              onChange={e => setRecipientEmail(e.target.value)}
+              style={{ width: "100%", background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: "0.625rem", padding: "0.7rem 1rem", color: "#fff", fontFamily: "'Inter', sans-serif", fontSize: "0.9rem", outline: "none", boxSizing: "border-box" }}
+              onFocus={e => (e.target.style.borderColor = "#f59e0b")}
+              onBlur={e => (e.target.style.borderColor = "rgba(255,255,255,0.15)")}
+            />
+          </div>
+          <div>
+            <label style={{ display: "block", fontFamily: "'Inter', sans-serif", fontSize: "0.78rem", color: "rgba(255,255,255,0.6)", marginBottom: "0.35rem", fontWeight: 600, letterSpacing: "0.04em" }}>
+              RECIPIENT NAME (optional)
+            </label>
+            <input
+              type="text"
+              placeholder="Their first name"
+              value={recipientName}
+              onChange={e => setRecipientName(e.target.value)}
+              style={{ width: "100%", background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: "0.625rem", padding: "0.7rem 1rem", color: "#fff", fontFamily: "'Inter', sans-serif", fontSize: "0.9rem", outline: "none", boxSizing: "border-box" }}
+              onFocus={e => (e.target.style.borderColor = "#f59e0b")}
+              onBlur={e => (e.target.style.borderColor = "rgba(255,255,255,0.15)")}
+            />
+          </div>
+          <div>
+            <label style={{ display: "block", fontFamily: "'Inter', sans-serif", fontSize: "0.78rem", color: "rgba(255,255,255,0.6)", marginBottom: "0.35rem", fontWeight: 600, letterSpacing: "0.04em" }}>
+              PERSONAL MESSAGE (optional)
+            </label>
+            <textarea
+              placeholder="Add a personal note for the recipient…"
+              value={message}
+              onChange={e => setMessage(e.target.value)}
+              maxLength={500}
+              rows={3}
+              style={{ width: "100%", background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: "0.625rem", padding: "0.7rem 1rem", color: "#fff", fontFamily: "'Inter', sans-serif", fontSize: "0.9rem", outline: "none", resize: "vertical", boxSizing: "border-box" }}
+              onFocus={e => (e.target.style.borderColor = "#f59e0b")}
+              onBlur={e => (e.target.style.borderColor = "rgba(255,255,255,0.15)")}
+            />
+            <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.72rem", color: "rgba(255,255,255,0.3)", marginTop: "0.25rem", textAlign: "right" }}>{message.length}/500</p>
+          </div>
+          <button
+            type="submit"
+            disabled={giftCheckout.isPending}
+            className="btn-gold"
+            style={{ width: "100%", padding: "0.875rem", borderRadius: "0.625rem", fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: "0.95rem", color: "#0d1f3c", border: "none", cursor: giftCheckout.isPending ? "not-allowed" : "pointer", opacity: giftCheckout.isPending ? 0.7 : 1 }}
+          >
+            {giftCheckout.isPending ? "Preparing checkout…" : "Send Gift ✦"}
+          </button>
+          <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.72rem", color: "rgba(255,255,255,0.35)", textAlign: "center" }}>
+            The recipient will receive a unique link to claim their free book.
+          </p>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 // ─── Scroll-triggered fade-up hook ───────────────────────────────────────────
 function useInView(threshold = 0.15) {
   const ref = useRef<HTMLDivElement>(null);
@@ -979,9 +1098,66 @@ function BuyButton({ productKey, label = "Buy Now" }: { productKey: "belong" | "
   );
 }
 
+// ─── Gift Book Button ─────────────────────────────────────────────────────────
+function GiftBookButton({
+  productKey,
+  productTitle,
+  dark = false,
+}: {
+  productKey: "belong" | "grow" | "go" | "bundle";
+  productTitle: string;
+  dark?: boolean;
+}) {
+  const [showModal, setShowModal] = useState(false);
+  return (
+    <>
+      <button
+        onClick={() => setShowModal(true)}
+        style={{
+          background: "transparent",
+          border: `1px solid ${dark ? "rgba(245,158,11,0.4)" : "rgba(13,31,60,0.2)"}`,
+          borderRadius: "9999px",
+          padding: "0.4rem 1rem",
+          fontFamily: "'Inter', sans-serif",
+          fontSize: "0.78rem",
+          fontWeight: 600,
+          color: dark ? "#f59e0b" : "#1a3a6b",
+          cursor: "pointer",
+          display: "flex",
+          alignItems: "center",
+          gap: "0.35rem",
+          transition: "all 0.18s ease",
+          width: "100%",
+          justifyContent: "center",
+        }}
+        onMouseEnter={e => {
+          (e.currentTarget as HTMLButtonElement).style.background = dark ? "rgba(245,158,11,0.1)" : "rgba(13,31,60,0.06)";
+          (e.currentTarget as HTMLButtonElement).style.transform = "scale(1.01)";
+        }}
+        onMouseLeave={e => {
+          (e.currentTarget as HTMLButtonElement).style.background = "transparent";
+          (e.currentTarget as HTMLButtonElement).style.transform = "scale(1)";
+        }}
+        onMouseDown={e => { (e.currentTarget as HTMLButtonElement).style.transform = "scale(0.97)"; }}
+        onMouseUp={e => { (e.currentTarget as HTMLButtonElement).style.transform = "scale(1.01)"; }}
+      >
+        🎁 Gift this Book
+      </button>
+      {showModal && (
+        <GiftModal
+          productKey={productKey}
+          productTitle={productTitle}
+          onClose={() => setShowModal(false)}
+        />
+      )}
+    </>
+  );
+}
+
 function BooksSection() {
   const { ref, visible } = useInView();
   return (
+    <>
     <section id="books" style={{ background: "#fdf8f0" }}>
       <div className="container py-24">
         <div className="text-center mb-16">
@@ -1049,6 +1225,7 @@ function BooksSection() {
                     — {book.verse.split("—")[1]?.trim()}
                   </span>
                 </p>
+                <div className="flex flex-col gap-2">
                 <div className="flex items-center justify-between">
                   <div>
                     <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.5rem", fontWeight: 700, color: "#0d1f3c" }}>{book.price}</span>
@@ -1059,6 +1236,8 @@ function BooksSection() {
                     )}
                   </div>
                   <BuyButton productKey={book.productKey} label="Buy Now" />
+                </div>
+                <GiftBookButton productKey={book.productKey} productTitle={book.title} />
                 </div>
               </div>
             </div>
@@ -1081,10 +1260,12 @@ function BooksSection() {
             <span style={{ fontFamily: "'Playfair Display', serif", fontSize: "2.5rem", fontWeight: 900, color: "#f59e0b" }}>$9.99</span>
             <span style={{ fontFamily: "'Inter', sans-serif", color: "rgba(255,255,255,0.5)", fontSize: "0.9rem" }}>vs. $13.97 separately</span>
             <BuyButton productKey="bundle" label="Get the Bundle ✦" />
+            <GiftBookButton productKey="bundle" productTitle="Complete 3-Book Bundle" dark />
           </div>
         </div>
       </div>
     </section>
+    </>
   );
 }
 

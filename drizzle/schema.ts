@@ -96,3 +96,38 @@ export const purchases = mysqlTable("purchases", {
 
 export type Purchase = typeof purchases.$inferSelect;
 export type InsertPurchase = typeof purchases.$inferInsert;
+
+/**
+ * Gift tokens — created when a buyer purchases a book as a gift.
+ * The recipient redeems the token at /gift/:token to claim the book.
+ */
+export const gifts = mysqlTable("gifts", {
+  id: int("id").autoincrement().primaryKey(),
+  /** Opaque URL-safe token sent to the recipient */
+  token: varchar("token", { length: 128 }).notNull().unique(),
+  /** Buyer's user ID */
+  senderUserId: int("senderUserId").notNull(),
+  /** Recipient email address (entered by buyer at checkout) */
+  recipientEmail: varchar("recipientEmail", { length: 320 }).notNull(),
+  /** Recipient display name (entered by buyer) */
+  recipientName: varchar("recipientName", { length: 255 }),
+  /** Optional personal message from the buyer */
+  message: text("message"),
+  /** Product key: 'belong' | 'grow' | 'go' | 'bundle' */
+  productKey: varchar("productKey", { length: 32 }).notNull(),
+  /** Stripe Checkout Session ID that funded this gift */
+  stripeSessionId: varchar("stripeSessionId", { length: 255 }).notNull().unique(),
+  /** Amount paid in cents */
+  amountCents: int("amountCents").notNull(),
+  currency: varchar("currency", { length: 8 }).notNull().default("usd"),
+  /** pending = not yet redeemed, redeemed = claimed by recipient */
+  status: mysqlEnum("status", ["pending", "redeemed"]).default("pending").notNull(),
+  /** User ID of the person who redeemed the gift (null until redeemed) */
+  redeemedByUserId: int("redeemedByUserId"),
+  redeemedAt: timestamp("redeemedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Gift = typeof gifts.$inferSelect;
+export type InsertGift = typeof gifts.$inferInsert;

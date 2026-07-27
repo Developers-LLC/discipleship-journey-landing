@@ -9,6 +9,7 @@ import PastorFunnel from "./pages/PastorFunnel";
 import Profile from "./pages/Profile";
 import TwoFactorChallenge from "./pages/TwoFactorChallenge";
 import Orders from "./pages/Orders";
+import GiftRedemption from "./pages/GiftRedemption";
 function Router() {
   // make sure to consider if you need authentication for certain routes
   return (
@@ -18,6 +19,7 @@ function Router() {
       <Route path={"/profile"} component={Profile} />
       <Route path={"/2fa-challenge"} component={TwoFactorChallenge} />
       <Route path={"/orders"} component={Orders} />
+      <Route path={"/gift/:token"} component={GiftRedemption} />
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />
     </Switch>
