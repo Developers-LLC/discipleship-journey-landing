@@ -3,6 +3,7 @@ import express from "express";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { registerOAuthRoutes } from "./oauth";
 import { registerGoogleAuthRoutes } from "../googleAuth";
+import { registerEmailAuthRoutes } from "../emailAuth";
 import { registerStorageProxy } from "./storageProxy";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
@@ -36,6 +37,7 @@ export function createExpressApp() {
   registerStorageProxy(app);
   registerOAuthRoutes(app);
   registerGoogleAuthRoutes(app);
+  registerEmailAuthRoutes(app);
   app.use(
     "/api/trpc",
     createExpressMiddleware({
